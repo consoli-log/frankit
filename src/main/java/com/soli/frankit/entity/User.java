@@ -1,13 +1,12 @@
 package com.soli.frankit.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.data.repository.cdi.Eager;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
 
@@ -16,13 +15,12 @@ import java.time.LocalDateTime;
  * fileName     : User
  * author       : eumsoli
  * date         : 2025-02-17
- * description  : 사용자 entity
+ * description  : 사용자 정보를 저장하는 엔티티
  */
 
 @Entity
 @Getter
-@Setter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "users")
 public class User {
 
@@ -44,9 +42,16 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // 비밀번호 암호화
-    public void encodePassword(BCryptPasswordEncoder passwordEncoder) {
-        this.password = passwordEncoder.encode(this.password);
+    /**
+     * User 생성자
+     *
+     * @param email    사용자 이메일
+     * @param password 암호화된 비밀번호
+     */
+    @Builder
+    public User(String email, String password) {
+        this.email = email;
+        this.password = password;
     }
 
 }
