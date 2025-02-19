@@ -18,27 +18,15 @@ import java.util.Map;
 public class CustomException extends RuntimeException {
 
     private final ErrorCode errorCode;
-    private final Map<String, String> errors;
 
     public CustomException(ErrorCode errorCode) {
         super(errorCode.getMessage()); // 기본 메세지
         this.errorCode = errorCode;
-        this.errors = new HashMap<>();
     }
 
     public CustomException(ErrorCode errorCode, String message) {
         super(message);  // 커스텀 메세지
         this.errorCode = errorCode;
-        this.errors = new HashMap<>();
-    }
-
-    // 유효성 검사
-    public CustomException(ErrorCode errorCode, BindingResult bindingResult) {
-        super(errorCode.getMessage());
-        this.errorCode = errorCode;
-        this.errors = new HashMap<>();
-        bindingResult.getFieldErrors().forEach(error ->
-                errors.put(error.getField(), error.getDefaultMessage()));
     }
 
 }

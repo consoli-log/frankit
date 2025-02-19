@@ -31,11 +31,23 @@ public class GlobalExceptionHandler {
         Map<String, Object> errorResponse = new HashMap<>();
         errorResponse.put("error", e.getMessage());
 
-        if (!e.getErrors().isEmpty()) {
-            errorResponse.put("errors", e.getErrors()); // 필드별 오류 메시지 포함
-        }
-
         return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(errorResponse);
     }
+
+    /**
+     * MethodArgumentNotValidException 처리 (DTO Validation 실패)
+     *
+     * @param e 발생한 MethodArgumentNotValidException 객체
+     * @return HTTP 400 Bad Request 필드별 응답 반환
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidationException(MethodArgumentNotValidException e) {
+        Map<String, String> errorResponse = new HashMap<>();
+        e.getBindingResult().getFieldErrors().forEach(error ->
+                errorResponse.put(error.getField(), error.getDefaultMessage())); // 필드별 에러 메시지 저장
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+
 
 }

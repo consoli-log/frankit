@@ -29,7 +29,6 @@ public enum ErrorCode {
 
     // 기타 예외
     INVALID_REQUEST(BAD_REQUEST, "잘못된 요청입니다."),
-    VALIDATION_FAILED(BAD_REQUEST, "유효성 검사에 실패했습니다."),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다.");
 
     private final HttpStatus httpStatus; // HTTP 상태 코드
