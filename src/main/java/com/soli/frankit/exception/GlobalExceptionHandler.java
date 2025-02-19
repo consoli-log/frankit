@@ -27,9 +27,14 @@ public class GlobalExceptionHandler {
      * @return HTTP 상태 코드와 예외 메시지를 포함한 응답 반환
      */
     @ExceptionHandler(CustomException.class)
-    public ResponseEntity<Map<String, String>> handleCustomException(CustomException e) {
-        Map<String, String> errorResponse = new HashMap<>();
+    public ResponseEntity<Map<String, Object>> handleCustomException(CustomException e) {
+        Map<String, Object> errorResponse = new HashMap<>();
         errorResponse.put("error", e.getMessage());
+
+        if (!e.getErrors().isEmpty()) {
+            errorResponse.put("errors", e.getErrors()); // 필드별 오류 메시지 포함
+        }
+
         return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(errorResponse);
     }
 
