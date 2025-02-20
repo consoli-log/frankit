@@ -19,13 +19,14 @@ import static org.springframework.http.HttpStatus.*;
 public enum ErrorCode {
 
     // 인증 관련 예외
-    TOKEN_EXPIRED(UNAUTHORIZED, "토큰이 만료되었습니다."),
-    INVALID_TOKEN(UNAUTHORIZED, "유효하지 않은 토큰입니다."),
+    TOKEN_EXPIRED(UNAUTHORIZED, "만료된 JWT 토큰입니다."),
+    INVALID_TOKEN(UNAUTHORIZED, "유효하지 않은 JWT 토큰입니다."),
     INVALID_JWT_SIGNATURE(UNAUTHORIZED, "잘못된 JWT 서명입니다."),
 
     // 사용자 관련 예외
     MEMBER_NOT_FOUND(NOT_FOUND, "회원을 찾을 수 없습니다."),
     EMAIL_ALREADY_EXISTS(CONFLICT, "이미 존재하는 이메일입니다."),
+    INVALID_CREDENTIALS(UNAUTHORIZED, "이메일 또는 비밀번호가 올바르지 않습니다."),
 
     // 기타 예외
     INVALID_REQUEST(BAD_REQUEST, "잘못된 요청입니다."),
