@@ -1,17 +1,18 @@
 package com.soli.frankit.util;
 
+import com.soli.frankit.exception.CustomException;
+import com.soli.frankit.exception.ErrorCode;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
+import java.security.Key;
 import java.util.Date;
 
 /**
@@ -26,9 +27,8 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
 
-    private SecretKey key;
+    private final Key key;
     private final long expirationTime;
-    private final String secret;
 
     /**
      * JWT 설정값을 주입받아 초기화
@@ -38,35 +38,27 @@ public class JwtTokenProvider {
      */
     public JwtTokenProvider(@Value("${jwt.secret}") String secret,
                             @Value("${jwt.expiration}") long expirationTime) {
-        this.secret = secret;
-        this.expirationTime = expirationTime;
-    }
-
-    /**
-     * SecretKey 초기화 (Base64 디코딩 후 키 생성)
-     */
-    @PostConstruct
-    public void init() {
         byte[] keyBytes = Decoders.BASE64.decode(secret);
         this.key = Keys.hmacShaKeyFor(keyBytes);
+        this.expirationTime = expirationTime;
     }
 
     /**
      * JWT 토큰 생성
      *
      * @param email 사용자 이메일
-     * @return JWT 토큰
+     * @return 생성된 JWT 토큰
      */
     public String createToken(String email) {
         Date now = new Date();
-        Date accessExpiration = new Date(now.getTime() + expirationTime);
+        Date expiryDate = new Date(now.getTime() + expirationTime);
 
         return Jwts.builder()
-                .subject(email)
-                .issuedAt(now)
-                .expiration(accessExpiration)
-                .signWith(key)
-                .compact();
+                    .subject(email)
+                    .issuedAt(now)
+                    .expiration(expiryDate)
+                    .signWith(key)
+                    .compact();
     }
 
     /**
@@ -77,40 +69,39 @@ public class JwtTokenProvider {
      */
     public String extractEmail(String token) {
         return Jwts.parser()
-                .verifyWith(key)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .getSubject();
+                   .setSigningKey(key)
+                   .build()
+                   .parseSignedClaims(token)
+                   .getPayload()
+                   .getSubject();
     }
 
     /**
      * JWT 토큰 유효성 검증
      *
-     * @param token JWT 토큰
-     * @return 토큰이 유효한 경우 true, 그렇지 않으면 false
+     * @param token 검증할 JWT 토큰
+     * @throws CustomException 토큰이 유효하지 않거나, 서명이 올바르지 않을 때 발생
      */
     public boolean validateToken(String token) {
-        if (token == null || token.trim().isEmpty()) {
-            log.info("JWT Token is empty or null"); // 빈 토큰
-            return false;
-        }
-
         try {
             Jwts.parser()
-                    .verifyWith(key)
-                    .build()
-                    .parseSignedClaims(token);
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token);
             return true;
         } catch (SecurityException | MalformedJwtException e) {
-            log.info("Invalid JWT Token", e); // 잘못된 토큰
+            log.warn("잘못된 JWT 서명입니다.");
+            throw new CustomException(ErrorCode.INVALID_JWT_SIGNATURE);
         } catch (ExpiredJwtException e) {
-            log.info("Expired JWT Token", e); // 토큰 만료
+            log.warn("만료된 JWT 토큰입니다.");
+            throw new CustomException(ErrorCode.TOKEN_EXPIRED);
         } catch (UnsupportedJwtException e) {
-            log.info("Unsupported JWT Token", e); // 지원하지 않는 토큰
+            log.warn("지원되지 않는 JWT 토큰입니다.");
+            throw new CustomException(ErrorCode.INVALID_TOKEN);
+        } catch (IllegalArgumentException e) {
+            log.warn("JWT 토큰이 잘못되었습니다.");
+            throw new CustomException(ErrorCode.INVALID_TOKEN);
         }
-
-        return false;
     }
 
 }
