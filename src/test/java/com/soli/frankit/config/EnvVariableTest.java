@@ -1,22 +1,23 @@
 package com.soli.frankit.config;
 
-import io.github.cdimascio.dotenv.Dotenv;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+
+/**
+ * packageName  com.soli.frankit.config
+ * fileName     EnvVariableTest
+ * author       eumsoli
+ * date         2025-02-20
+ * description  DB_PORT 환경 변수 로드 테스트
+ */
 
 @SpringBootTest
+@Import(TestEnvConfig.class)
 public class EnvVariableTest {
-
-    @BeforeAll
-    static void loadEnvVariables() {
-        Dotenv dotenv = Dotenv.configure().load();
-        dotenv.entries().forEach(entry -> System.setProperty(entry.getKey(), entry.getValue()));
-    }
 
     @Value("${DB_PORT}")
     private String dbPort;

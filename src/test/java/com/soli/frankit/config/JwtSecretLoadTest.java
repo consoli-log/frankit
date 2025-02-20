@@ -1,35 +1,30 @@
 package com.soli.frankit.config;
 
-import io.github.cdimascio.dotenv.Dotenv;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * packageName  com.soli.frankit
+ * packageName  com.soli.frankit.config
  * fileName     JwtSecretLoadTest
  * author       eumsoli
- * date         2025-02-18
+ * date         2025-02-20
  * description  JWT_SECRET 환경 변수 로드 테스트
  */
 
 @SpringBootTest
+@Import(TestEnvConfig.class)
 public class JwtSecretLoadTest {
-
-    @BeforeAll
-    static void loadEnvVariables() {
-        Dotenv dotenv = Dotenv.configure().load();
-        dotenv.entries().forEach(entry -> System.setProperty(entry.getKey(), entry.getValue()));
-    }
 
     @Value("${jwt.secret}")
     private String jwtSecret;
 
     @Test
     void jwtSecret_shouldLoadFromEnvironment() {
-        Assertions.assertNotNull(jwtSecret, "JWT_SECRET 값이 로드되지 않았습니다.");
+        assertThat(jwtSecret).as("JWT_SECRET 값이 로드되지 않았습니다.").isNotNull();
         System.out.println("Loaded JWT Secret from @Value: " + jwtSecret);
         System.out.println("Loaded JWT Secret from System.getenv: " + System.getProperty("JWT_SECRET"));
     }

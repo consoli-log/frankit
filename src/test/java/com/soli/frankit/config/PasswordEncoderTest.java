@@ -1,18 +1,17 @@
 package com.soli.frankit.config;
 
-import io.github.cdimascio.dotenv.Dotenv;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import static org.junit.jupiter.api.Assertions.*;
-
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * packageName  com.soli.frankit.service
+ * packageName  com.soli.frankit.config
  * fileName     PasswordEncoderTest
  * author       eumsoli
  * date         2025-02-19
@@ -20,16 +19,11 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 
 @SpringBootTest
+@Import(TestEnvConfig.class)
 public class PasswordEncoderTest {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
-
-    @BeforeAll
-    static void loadEnvVariables() {
-        Dotenv dotenv = Dotenv.configure().load();
-        dotenv.entries().forEach(entry -> System.setProperty(entry.getKey(), entry.getValue()));
-    }
 
     @Test
     @DisplayName("비밀번호 암호화")
