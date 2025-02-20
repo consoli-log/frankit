@@ -30,7 +30,7 @@ public class AuthController {
      * 로그인 API
      *
      * @param  request 로그인 요청 DTO
-     * @return JWT 토근
+     * @return JWT 토큰
      */
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest request) {
