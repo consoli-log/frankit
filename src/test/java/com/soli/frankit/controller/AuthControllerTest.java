@@ -41,16 +41,18 @@ public class AuthControllerTest {
     private AuthService authService;
 
     private LoginRequest validRequest;
-    private LoginRequest wrongFormatEmailRequest;
+    private LoginRequest emailNotFoundRequest;
     private LoginRequest wrongPasswordRequest;
+    private LoginRequest wrongFormatEmailRequest;
     private LoginRequest blankEmailRequest;
     private LoginRequest blankPasswordRequest;
 
     @BeforeEach
     void setUp() {
         validRequest = new LoginRequest("soli@test.com", "solitest1216");
-        wrongFormatEmailRequest = new LoginRequest("wrongformat-email", "solitest1216");
+        emailNotFoundRequest = new LoginRequest("notfound@test.com", "solitest1216");
         wrongPasswordRequest = new LoginRequest("soli@test.com", "wrongpassword");
+        wrongFormatEmailRequest = new LoginRequest("wrongformat-email", "solitest1216");
         blankEmailRequest = new LoginRequest("", "solitest1216");
         blankPasswordRequest = new LoginRequest("soli@test.com", "");
     }
@@ -70,6 +72,21 @@ public class AuthControllerTest {
     }
 
     @Test
+    @DisplayName("로그인 실패 - 이메일이 존재하지 않음 (404)")
+    void loginFail_EmailNotFound() throws Exception {
+        // Given
+        doThrow(new CustomException(ErrorCode.MEMBER_NOT_FOUND))
+                .when(authService).login(any(LoginRequest.class));
+
+        // When & Then
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(emailNotFoundRequest)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value(ErrorCode.MEMBER_NOT_FOUND.getMessage()));
+    }
+
+    @Test
     @DisplayName("로그인 실패 - 비밀번호 틀림 (401)")
     void loginFail_WrongPassword() throws Exception {
         // Given
@@ -81,7 +98,7 @@ public class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(wrongPasswordRequest)))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.error").value("이메일 또는 비밀번호가 올바르지 않습니다."));
+                .andExpect(jsonPath("$.error").value(ErrorCode.INVALID_CREDENTIALS.getMessage()));
     }
 
     @Test
@@ -95,7 +112,7 @@ public class AuthControllerTest {
     }
 
     @Test
-    @DisplayName("로그인 실패 - 이메일 공백")
+    @DisplayName("로그인 실패 - 이메일 공백 (400)")
     void loginFail_BlankEmail() throws Exception {
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)

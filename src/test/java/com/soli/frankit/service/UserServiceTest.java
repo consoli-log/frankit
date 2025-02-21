@@ -4,14 +4,15 @@ import com.soli.frankit.config.TestEnvConfig;
 import com.soli.frankit.dto.RegisterRequest;
 import com.soli.frankit.entity.User;
 import com.soli.frankit.exception.CustomException;
+import com.soli.frankit.exception.ErrorCode;
 import com.soli.frankit.repository.UserRepository;
-import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -30,8 +31,7 @@ import static org.mockito.Mockito.when;
  * description  UserService의 회원가입 서비스 테스트
  */
 
-@SpringBootTest
-@Transactional
+@ExtendWith(MockitoExtension.class)
 @Import(TestEnvConfig.class)
 public class UserServiceTest {
 
@@ -80,7 +80,7 @@ public class UserServiceTest {
         // When & Then
         assertThatThrownBy(() -> userService.register(duplicateRequest))
                 .isInstanceOf(CustomException.class)
-                .hasMessageContaining("이미 존재하는 이메일입니다.");
+                .hasMessageContaining(ErrorCode.EMAIL_ALREADY_EXISTS.getMessage());
     }
 
 }

@@ -5,15 +5,16 @@ import com.soli.frankit.dto.LoginRequest;
 import com.soli.frankit.dto.TokenResponse;
 import com.soli.frankit.entity.User;
 import com.soli.frankit.exception.CustomException;
+import com.soli.frankit.exception.ErrorCode;
 import com.soli.frankit.repository.UserRepository;
 import com.soli.frankit.util.JwtTokenProvider;
-import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -32,8 +33,7 @@ import static org.mockito.Mockito.when;
  * description  AuthService의 로그인 기능 테스트
  */
 
-@SpringBootTest
-@Transactional
+@ExtendWith(MockitoExtension.class)
 @Import(TestEnvConfig.class)
 public class AuthServiceTest {
 
@@ -82,15 +82,15 @@ public class AuthServiceTest {
     @DisplayName("로그인 실패 - 비밀번호 틀림")
     void loginFail_WrongPassword() {
         // Given
-        User mockUser = new User(validRequest.getEmail(), passwordEncoder.encode("correctpassword"));
+        User user = new User(validRequest.getEmail(), passwordEncoder.encode("correctpassword"));
 
-        when(userRepository.findByEmail(validRequest.getEmail())).thenReturn(Optional.of(mockUser));
-        when(passwordEncoder.matches(wrongPasswordRequest.getPassword(), mockUser.getPassword())).thenReturn(false);
+        when(userRepository.findByEmail(validRequest.getEmail())).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(wrongPasswordRequest.getPassword(), user.getPassword())).thenReturn(false);
 
         // When & Then
         assertThatThrownBy(() -> authService.login(wrongPasswordRequest))
                 .isInstanceOf(CustomException.class)
-                .hasMessageContaining("이메일 또는 비밀번호가 올바르지 않습니다.");
+                .hasMessageContaining(ErrorCode.INVALID_CREDENTIALS.getMessage());
     }
 
     @Test
@@ -102,7 +102,7 @@ public class AuthServiceTest {
         // When & Then
         assertThatThrownBy(() -> authService.login(emailNotFoundRequest))
                 .isInstanceOf(CustomException.class)
-                .hasMessageContaining("회원을 찾을 수 없습니다.");
+                .hasMessageContaining(ErrorCode.MEMBER_NOT_FOUND.getMessage());
     }
 
 }

@@ -18,8 +18,9 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * packageName  com.soli.frankit.controller
@@ -78,7 +79,7 @@ public class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(duplicateRequest)))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.error").value("이미 존재하는 이메일입니다."));
+                .andExpect(jsonPath("$.error").value(ErrorCode.EMAIL_ALREADY_EXISTS.getMessage()));
     }
 
     @Test
