@@ -28,6 +28,9 @@ public enum ErrorCode {
     EMAIL_ALREADY_EXISTS(CONFLICT, "이미 존재하는 이메일입니다."),
     INVALID_CREDENTIALS(UNAUTHORIZED, "이메일 또는 비밀번호가 올바르지 않습니다."),
 
+    // 상품 관련 예외
+    PRODUCT_NOT_FOUND(NOT_FOUND, "상품을 찾을 수 없습니다."),
+
     // 기타 예외
     INVALID_REQUEST(BAD_REQUEST, "잘못된 요청입니다."),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다.");
