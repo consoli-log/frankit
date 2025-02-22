@@ -38,11 +38,12 @@ public class ProductService {
                                     .name(request.getName())
                                     .description(request.getDescription())
                                     .price(request.getPrice())
+                                    .shippingFee(request.getShippingFee())
                                     .build();
 
         Product savedProduct = productRepository.save(product);
-        log.info("상품 등록 완료: id={}, name={}, description={}, price={}"
-                , savedProduct.getId(), savedProduct.getName(), savedProduct.getDescription(), savedProduct.getPrice() );
+        log.info("상품 등록 완료: id={}, name={}, description={}, price={}, shippingFee={}"
+                , savedProduct.getId(), savedProduct.getName(), savedProduct.getDescription(), savedProduct.getPrice(), savedProduct.getShippingFee() );
 
         return convertToResponseDto(savedProduct);
     }
@@ -59,9 +60,9 @@ public class ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
 
-        product.update(request.getName(), request.getDescription(), request.getPrice());
-        log.info("상품 수정 완료: id={}, name={}, description={}, price={}"
-                , product.getId(), product.getName(), product.getDescription(), product.getPrice() );
+        product.update(request.getName(), request.getDescription(), request.getPrice(), request.getShippingFee());
+        log.info("상품 수정 완료: id={}, name={}, description={}, price={}, shippingFee={}"
+                , product.getId(), product.getName(), product.getDescription(), product.getPrice(), product.getShippingFee() );
 
         return convertToResponseDto(product);
     }
@@ -92,6 +93,7 @@ public class ProductService {
                                 .name(product.getName())
                                 .description(product.getDescription())
                                 .price(product.getPrice())
+                                .shippingFee(product.getShippingFee())
                                 .createdAt(product.getCreatedAt())
                                 .updatedAt(product.getUpdatedAt())
                                 .build();

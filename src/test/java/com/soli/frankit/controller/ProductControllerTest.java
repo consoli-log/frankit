@@ -50,7 +50,7 @@ class ProductControllerTest {
 
     private ProductRequest validUpdateRequest;
     private ProductRequest blankDescriptionRequest;
-    private ProductRequest negativePriceUpdateRequest;
+    private ProductRequest negativeFeeUpdateRequest;
 
     private ProductResponse validResponse;
     private ProductResponse validUpdateResponse;
@@ -60,19 +60,20 @@ class ProductControllerTest {
         vaildId = 1L;
         invaildId = 999L;
 
-        validRequest = new ProductRequest("상품명", "상품 설명", BigDecimal.valueOf(20000));
-        blankNameRequest = new ProductRequest("", "상품 설명", BigDecimal.valueOf(20000));
-        negativePriceRequest = new ProductRequest("상품명", "상품 설명", BigDecimal.valueOf(-20000));
+        validRequest = new ProductRequest("상품명", "상품 설명", BigDecimal.valueOf(20000), BigDecimal.valueOf(3000));
+        blankNameRequest = new ProductRequest("", "상품 설명", BigDecimal.valueOf(20000), BigDecimal.valueOf(3000));
+        negativePriceRequest = new ProductRequest("상품명", "상품 설명", BigDecimal.valueOf(-20000), BigDecimal.valueOf(3000));
 
-        validUpdateRequest = new ProductRequest("상품명 수정", "상품 설명 수정", BigDecimal.valueOf(50000));
-        blankDescriptionRequest = new ProductRequest("상품명 수정", "", BigDecimal.valueOf(50000));
-        negativePriceUpdateRequest = new ProductRequest("상품명 수정", "상품 설명 수정", BigDecimal.valueOf(-50000));
+        validUpdateRequest = new ProductRequest("상품명 수정", "상품 설명 수정", BigDecimal.valueOf(50000), BigDecimal.valueOf(1500));
+        blankDescriptionRequest = new ProductRequest("상품명 수정", "", BigDecimal.valueOf(50000), BigDecimal.valueOf(1500));
+        negativeFeeUpdateRequest = new ProductRequest("상품명 수정", "상품 설명 수정", BigDecimal.valueOf(50000), BigDecimal.valueOf(-1500));
 
         validResponse = ProductResponse.builder()
                                             .id(vaildId)
                                             .name("상품명")
                                             .description("상품 설명")
                                             .price(BigDecimal.valueOf(20000))
+                                            .shippingFee(BigDecimal.valueOf(3000))
                                             .build();
 
         validUpdateResponse = ProductResponse.builder()
@@ -80,6 +81,7 @@ class ProductControllerTest {
                                                 .name("상품명 수정")
                                                 .description("상품 설명 수정")
                                                 .price(BigDecimal.valueOf(50000))
+                                                .shippingFee(BigDecimal.valueOf(1500))
                                                 .build();
     }
 
@@ -161,13 +163,13 @@ class ProductControllerTest {
     }
 
     @Test
-    @DisplayName("상품 수정 실패 - 가격이 음수 (400)")
-    void updateProductFail_NegativePrice() throws Exception {
+    @DisplayName("상품 수정 실패 - 배송비가 음수 (400)")
+    void updateProductFail_NegativeFee() throws Exception {
         mockMvc.perform(put("/api/products/{id}", vaildId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(negativePriceUpdateRequest)))
+                        .content(new ObjectMapper().writeValueAsString(negativeFeeUpdateRequest)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.price").value("가격은 0원 이상이어야 합니다."));
+                .andExpect(jsonPath("$.shippingFee").value("배송비는 0원 이상이어야 합니다."));
     }
 
     @Test

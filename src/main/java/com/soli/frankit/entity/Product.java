@@ -39,6 +39,9 @@ public class Product {
     @Column(nullable = false)
     private BigDecimal price; // 상품 가격
 
+    @Column(nullable = false)
+    private BigDecimal shippingFee; // 배송비
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt; // 등록일
@@ -53,12 +56,14 @@ public class Product {
      * @param name 상품명
      * @param description 상품 설명
      * @param price 상품 가격
+     * @param shippingFee 배송비
      */
     @Builder
-    public Product(String name, String description, BigDecimal price) {
+    public Product(String name, String description, BigDecimal price, BigDecimal shippingFee) {
         this.name = name;
         this.description = description;
         this.price = price;
+        this.shippingFee = shippingFee;
     }
 
     /**
@@ -67,11 +72,13 @@ public class Product {
      * @param name 상품명
      * @param description 상품 설명
      * @param price 상품 가격
+     * @param shippingFee 배송비
      */
-    public void update(String name, String description, BigDecimal price) {
+    public void update(String name, String description, BigDecimal price, BigDecimal shippingFee) {
         this.name = name;
         this.description = description;
         this.price = price;
+        this.shippingFee = shippingFee;
     }
 
 }

@@ -23,6 +23,7 @@ public class ProductResponse {
     private String name;
     private String description;
     private BigDecimal price;
+    private BigDecimal shippingFee;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

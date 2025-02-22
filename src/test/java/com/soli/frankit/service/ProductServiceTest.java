@@ -59,8 +59,8 @@ class ProductServiceTest {
                                 .price(BigDecimal.valueOf(20000))
                                 .build();
 
-        validCreateRequest = new ProductRequest("새 상품명", "새 상품 설명", BigDecimal.valueOf(10000));
-        validUpdateRequest = new ProductRequest("상품명 수정", "상품 설명 수정", BigDecimal.valueOf(50000));
+        validCreateRequest = new ProductRequest("새 상품명", "새 상품 설명", BigDecimal.valueOf(10000), BigDecimal.valueOf(4000));
+        validUpdateRequest = new ProductRequest("상품명 수정", "상품 설명 수정", BigDecimal.valueOf(50000), BigDecimal.valueOf(1500));
     }
 
     @Test
@@ -77,6 +77,7 @@ class ProductServiceTest {
         assertThat(response.getName()).isEqualTo(validProduct.getName());
         assertThat(response.getDescription()).isEqualTo(validProduct.getDescription());
         assertThat(response.getPrice()).isEqualTo(validProduct.getPrice());
+        assertThat(response.getShippingFee()).isEqualTo(validProduct.getShippingFee());
         verify(productRepository, times(1)).save(any(Product.class));
     }
 
