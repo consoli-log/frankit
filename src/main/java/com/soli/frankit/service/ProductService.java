@@ -6,10 +6,14 @@ import com.soli.frankit.entity.Product;
 import com.soli.frankit.exception.CustomException;
 import com.soli.frankit.exception.ErrorCode;
 import com.soli.frankit.repository.ProductRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * packageName  : com.soli.frankit.service
@@ -79,6 +83,47 @@ public class ProductService {
 
         productRepository.delete(product);
         log.info("상품 삭제 완료: id={}", id);
+    }
+
+    /**
+     * 상품 단건 조회
+     *
+     * @param id 조회할 상품 ID
+     * @return 조회된 상품 정보
+     */
+    @Transactional(readOnly = true)
+    public ProductResponse getProductById(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        log.info("상품 조회 완료: id={}, name={}, description={}, price={}, shippingFee={}"
+                , product.getId(), product.getName(), product.getDescription(), product.getPrice(), product.getShippingFee() );
+
+        return convertToResponseDto(product);
+    }
+
+    /**
+     * 상품 목록 조회 (페이징)
+     *
+     * @param page 페이지 번호
+     * @param size 페이지당 항목 수
+     * @return 페이징된 상품 목록 정보
+     */
+    @Transactional(readOnly = true)
+    public Page<ProductResponse> getAllProducts(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // 생성일자 내림차순
+
+        Page<Product> products = productRepository.findAll(pageable);
+
+        log.info("상품 목록 조회 완료: page={}, size={}, totalElements={}",
+                page, size, products.getTotalElements());
+
+        products.getContent().forEach(product ->
+                log.info("상품 목록 정보: id={}, name={}, price={}, shippingFee={}",
+                        product.getId(), product.getName(), product.getPrice(), product.getShippingFee())
+        );
+
+        return products.map(this::convertToResponseDto);
     }
 
     /**

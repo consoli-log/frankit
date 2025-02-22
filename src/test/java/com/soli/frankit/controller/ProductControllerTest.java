@@ -13,12 +13,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
+import java.util.List;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -41,8 +46,8 @@ class ProductControllerTest {
     @MockitoBean
     private ProductService productService;
 
-    private Long vaildId;
-    private Long invaildId;
+    private Long validId;
+    private Long invalidId;
 
     private ProductRequest validRequest;
     private ProductRequest blankNameRequest;
@@ -57,8 +62,8 @@ class ProductControllerTest {
 
     @BeforeEach
     void setUp() {
-        vaildId = 1L;
-        invaildId = 999L;
+        validId = 1L;
+        invalidId = 999L;
 
         validRequest = new ProductRequest("상품명", "상품 설명", BigDecimal.valueOf(20000), BigDecimal.valueOf(3000));
         blankNameRequest = new ProductRequest("", "상품 설명", BigDecimal.valueOf(20000), BigDecimal.valueOf(3000));
@@ -69,7 +74,7 @@ class ProductControllerTest {
         negativeFeeUpdateRequest = new ProductRequest("상품명 수정", "상품 설명 수정", BigDecimal.valueOf(50000), BigDecimal.valueOf(-1500));
 
         validResponse = ProductResponse.builder()
-                                            .id(vaildId)
+                                            .id(validId)
                                             .name("상품명")
                                             .description("상품 설명")
                                             .price(BigDecimal.valueOf(20000))
@@ -77,7 +82,7 @@ class ProductControllerTest {
                                             .build();
 
         validUpdateResponse = ProductResponse.builder()
-                                                .id(vaildId)
+                                                .id(validId)
                                                 .name("상품명 수정")
                                                 .description("상품 설명 수정")
                                                 .price(BigDecimal.valueOf(50000))
@@ -91,14 +96,15 @@ class ProductControllerTest {
         // Given
         when(productService.createProduct(any(ProductRequest.class))).thenReturn(validResponse);
 
-        // when & then
+        // When & Then
         mockMvc.perform(post("/api/products")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(validRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("상품명"))
                 .andExpect(jsonPath("$.description").value("상품 설명"))
-                .andExpect(jsonPath("$.price").value(BigDecimal.valueOf(20000)));
+                .andExpect(jsonPath("$.price").value(BigDecimal.valueOf(20000)))
+                .andExpect(jsonPath("$.shippingFee").value(BigDecimal.valueOf(3000)));
     }
 
     @Test
@@ -128,24 +134,25 @@ class ProductControllerTest {
         when(productService.updateProduct(any(Long.class), any(ProductRequest.class))).thenReturn(validUpdateResponse);
 
         // When & Then
-        mockMvc.perform(put("/api/products/{id}", vaildId)
+        mockMvc.perform(put("/api/products/{id}", validId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(validUpdateRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("상품명 수정"))
                 .andExpect(jsonPath("$.description").value("상품 설명 수정"))
-                .andExpect(jsonPath("$.price").value(BigDecimal.valueOf(50000)));
+                .andExpect(jsonPath("$.price").value(BigDecimal.valueOf(50000)))
+                .andExpect(jsonPath("$.shippingFee").value(BigDecimal.valueOf(1500)));
     }
 
     @Test
     @DisplayName("상품 수정 실패 - 상품이 존재하지 않음 (404)")
     void updateProductFail_ProductNotFound() throws Exception {
-        // given
+        // Given
         doThrow(new CustomException(ErrorCode.PRODUCT_NOT_FOUND))
-                .when(productService).updateProduct(eq(invaildId), any(ProductRequest.class));
+                .when(productService).updateProduct(invalidId, any(ProductRequest.class));
 
         // When & Then
-        mockMvc.perform(put("/api/products/{id}", invaildId)
+        mockMvc.perform(put("/api/products/{id}", invalidId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(validUpdateRequest)))
                 .andExpect(status().isNotFound())
@@ -155,7 +162,7 @@ class ProductControllerTest {
     @Test
     @DisplayName("상품 수정 실패 - 상품 설명 공백 (400)")
     void updateProductFail_BlankDescription() throws Exception {
-        mockMvc.perform(put("/api/products/{id}", vaildId)
+        mockMvc.perform(put("/api/products/{id}", validId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(blankDescriptionRequest)))
                 .andExpect(status().isBadRequest())
@@ -165,7 +172,7 @@ class ProductControllerTest {
     @Test
     @DisplayName("상품 수정 실패 - 배송비가 음수 (400)")
     void updateProductFail_NegativeFee() throws Exception {
-        mockMvc.perform(put("/api/products/{id}", vaildId)
+        mockMvc.perform(put("/api/products/{id}", validId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(negativeFeeUpdateRequest)))
                 .andExpect(status().isBadRequest())
@@ -175,7 +182,7 @@ class ProductControllerTest {
     @Test
     @DisplayName("상품 삭제 성공 (200)")
     void deleteProductSuccess() throws Exception {
-        mockMvc.perform(delete("/api/products/{id}", vaildId))
+        mockMvc.perform(delete("/api/products/{id}", validId))
                 .andExpect(status().isNoContent());
     }
 
@@ -184,12 +191,90 @@ class ProductControllerTest {
     void deleteProductFail_ProductNotFound() throws Exception {
         // Given
         doThrow(new CustomException(ErrorCode.PRODUCT_NOT_FOUND))
-                .when(productService).deleteProduct(eq(invaildId));
+                .when(productService).deleteProduct(invalidId);
 
         // When & Then
-        mockMvc.perform(delete("/api/products/{id}", invaildId))
+        mockMvc.perform(delete("/api/products/{id}", invalidId))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value(ErrorCode.PRODUCT_NOT_FOUND.getMessage()));
+    }
+
+    @Test
+    @DisplayName("상품 조회 성공 (200)")
+    void getProductByIdSuccess() throws Exception {
+        // Given
+        when(productService.getProductById(validId)).thenReturn(validResponse);
+
+        // When & Then
+        mockMvc.perform(get("/api/products/{id}", validId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("상품명"))
+                .andExpect(jsonPath("$.description").value("상품 설명"))
+                .andExpect(jsonPath("$.price").value(BigDecimal.valueOf(20000)))
+                .andExpect(jsonPath("$.shippingFee").value(BigDecimal.valueOf(3000)));
+    }
+
+    @Test
+    @DisplayName("상품 조회 실패 - 상품이 존재하지 않음 (404)")
+    void getProductByIdFail_ProductNotFound() throws Exception {
+        // Given
+        when(productService.getProductById(invalidId))
+                .thenThrow(new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        // When & Then
+        mockMvc.perform(get("/api/products/{id}", invalidId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value(ErrorCode.PRODUCT_NOT_FOUND.getMessage()));
+    }
+
+    @Test
+    @DisplayName("상품 목록 조회 성공 - 상품 있음 (200)")
+    void getAllProductsSuccess() throws Exception {
+        // Given
+        int page = 0;
+        int size = 2;
+
+        List<ProductResponse> responseList = List.of(
+                ProductResponse.builder().id(1L).name("상품 1").description("설명 1").price(BigDecimal.valueOf(10000)).shippingFee(BigDecimal.valueOf(1000)).build(),
+                ProductResponse.builder().id(2L).name("상품 2").description("설명 2").price(BigDecimal.valueOf(20000)).shippingFee(BigDecimal.valueOf(2000)).build()
+        );
+
+        Page<ProductResponse> responsePage = new PageImpl<>(responseList, PageRequest.of(page, size), 3); // 한 페이지에 보여줄 상품은 2개지만 총 상품이 3개라고 설정
+        when(productService.getAllProducts(page, size)).thenReturn(responsePage);
+
+        // When & Then
+        mockMvc.perform(get("/api/products")
+                        .param("page", String.valueOf(page))
+                        .param("size", String.valueOf(size))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray())
+                .andExpect(jsonPath("$.content", hasSize(2))) // 현재 페이지 데이터 2개인지 확인
+                .andExpect(jsonPath("$.totalElements").value(3)) // 전체 데이터 3개인지 확인
+                .andExpect(jsonPath("$.content[0].name").value("상품 1")); // 첫 번째 상품 이름 확인
+    }
+
+    @Test
+    @DisplayName("상품 목록 조회 성공 - 상품 없음 (200)")
+    void getAllProductsSuccess_Empty() throws Exception {
+        // Given
+        int page = 1;
+        int size = 2;
+
+        Page<ProductResponse> emptyPage = new PageImpl<>(List.of());
+        when(productService.getAllProducts(page, size)).thenReturn(emptyPage);
+
+        // When & Then
+        mockMvc.perform(get("/api/products")
+                        .param("page", String.valueOf(page))
+                        .param("size", String.valueOf(size))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray())
+                .andExpect(jsonPath("$.content", hasSize(0))) // 현재 페이지 데이터 0개인지 확인
+                .andExpect(jsonPath("$.totalElements").value(0)); // 전체 데이터 0개인지 확인
     }
 
 }

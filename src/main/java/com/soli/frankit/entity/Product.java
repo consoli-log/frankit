@@ -39,7 +39,7 @@ public class Product {
     @Column(nullable = false)
     private BigDecimal price; // 상품 가격
 
-    @Column(nullable = false)
+    @Column(name = "shipping_fee", nullable = false)
     private BigDecimal shippingFee; // 배송비
 
     @CreationTimestamp
