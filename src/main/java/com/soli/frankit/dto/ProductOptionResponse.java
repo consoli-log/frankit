@@ -1,5 +1,6 @@
 package com.soli.frankit.dto;
 
+import com.soli.frankit.entity.OptionType;
 import com.soli.frankit.entity.ProductOption;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,7 +24,7 @@ public class ProductOptionResponse {
 
     private Long id;
     private String optionName;
-    private String optionType;
+    private OptionType optionType;
     private BigDecimal optionPrice;
     private boolean isActive;
     private LocalDateTime createdAt;
@@ -32,16 +33,18 @@ public class ProductOptionResponse {
     /**
      * ProductOption 엔티티를 ProductOptionResponse DTO로 변환
      *
-     * @param option 상품 옵션 엔티티
+     * @param option 변환할 상품 옵션 엔티티
      * @return ProductOptionResponse DTO
      */
     public static ProductOptionResponse from(ProductOption option) {
         return ProductOptionResponse.builder()
                 .id(option.getId())
                 .optionName(option.getOptionName())
-                .optionType(option.getOptionType().name())
+                .optionType(option.getOptionType())
                 .optionPrice(option.getOptionPrice())
                 .isActive(option.isActive())
+                .createdAt(option.getCreatedAt())
+                .updatedAt(option.getUpdatedAt())
                 .build();
     }
 

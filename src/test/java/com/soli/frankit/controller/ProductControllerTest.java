@@ -205,50 +205,6 @@ class ProductControllerTest {
     }
 
     @Test
-    @DisplayName("상품 활성화 성공 (204)")
-    void activateProductSuccess() throws Exception {
-        mockMvc.perform(put("/api/products/{id}/activate", validId))
-                .andExpect(status().isNoContent());
-
-        verify(productService, times(1)).activateProduct(validId);
-    }
-
-    @Test
-    @DisplayName("상품 활성화 실패 - 존재하지 않는 상품 (404)")
-    void activateProductFail_ProductNotFound() throws Exception {
-        // Given
-        doThrow(new CustomException(ErrorCode.PRODUCT_NOT_FOUND))
-                .when(productService).activateProduct(invalidId);
-
-        // When & Then
-        mockMvc.perform(put("/api/products/{id}/activate", invalidId))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error").value(ErrorCode.PRODUCT_NOT_FOUND.getMessage()));
-    }
-
-    @Test
-    @DisplayName("상품 비활성화 성공 (204)")
-    void deactivateProductSuccess() throws Exception {
-        mockMvc.perform(put("/api/products/{id}/deactivate", validId))
-                .andExpect(status().isNoContent());
-
-        verify(productService, times(1)).deactivateProduct(validId);
-    }
-
-    @Test
-    @DisplayName("상품 비활성화 실패 - 존재하지 않는 상품 (404)")
-    void deactivateProductFail_ProductNotFound() throws Exception {
-        // Given
-        doThrow(new CustomException(ErrorCode.PRODUCT_NOT_FOUND))
-                .when(productService).deactivateProduct(invalidId);
-
-        // When & Then
-        mockMvc.perform(put("/api/products/{id}/deactivate", invalidId))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error").value(ErrorCode.PRODUCT_NOT_FOUND.getMessage()));
-    }
-
-    @Test
     @DisplayName("상품 삭제 성공 - 주문되지 않은 상품(활성화 상태) (204)")
     void deleteProductSuccess_ActiveProductWithoutOrder() throws Exception {
         // Given
@@ -301,6 +257,51 @@ class ProductControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(ErrorCode.PRODUCT_CANNOT_BE_DELETED.getMessage()));
     }
+
+    @Test
+    @DisplayName("상품 활성화 성공 (204)")
+    void activateProductSuccess() throws Exception {
+        mockMvc.perform(put("/api/products/{id}/activate", validId))
+                .andExpect(status().isNoContent());
+
+        verify(productService, times(1)).activateProduct(validId);
+    }
+
+    @Test
+    @DisplayName("상품 활성화 실패 - 존재하지 않는 상품 (404)")
+    void activateProductFail_ProductNotFound() throws Exception {
+        // Given
+        doThrow(new CustomException(ErrorCode.PRODUCT_NOT_FOUND))
+                .when(productService).activateProduct(invalidId);
+
+        // When & Then
+        mockMvc.perform(put("/api/products/{id}/activate", invalidId))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value(ErrorCode.PRODUCT_NOT_FOUND.getMessage()));
+    }
+
+    @Test
+    @DisplayName("상품 비활성화 성공 (204)")
+    void deactivateProductSuccess() throws Exception {
+        mockMvc.perform(put("/api/products/{id}/deactivate", validId))
+                .andExpect(status().isNoContent());
+
+        verify(productService, times(1)).deactivateProduct(validId);
+    }
+
+    @Test
+    @DisplayName("상품 비활성화 실패 - 존재하지 않는 상품 (404)")
+    void deactivateProductFail_ProductNotFound() throws Exception {
+        // Given
+        doThrow(new CustomException(ErrorCode.PRODUCT_NOT_FOUND))
+                .when(productService).deactivateProduct(invalidId);
+
+        // When & Then
+        mockMvc.perform(put("/api/products/{id}/deactivate", invalidId))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value(ErrorCode.PRODUCT_NOT_FOUND.getMessage()));
+    }
+
 
     @Test
     @DisplayName("상품 조회 성공 (200)")

@@ -23,4 +23,15 @@ public class OrderService {
         return false; // 기본적으로 주문 없음 처리
     }
 
+    /**
+     * 옵션이 주문된 적이 있는지 확인
+     *
+     * @param id 옵션 ID
+     * @return 주문이 존재하면 true, 없으면 false 반환
+     */
+    public boolean hasOptionOrders(Long id) {
+        // 실제 주문 여부를 확인하는 로직이 들어갈 예정 (예: OrderRepository 활용)
+        return false; // 기본적으로 주문 없음 처리
+    }
+
 }
