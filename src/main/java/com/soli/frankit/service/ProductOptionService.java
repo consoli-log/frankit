@@ -36,28 +36,28 @@ public class ProductOptionService {
     /**
      * 상품 옵션 등록
      *
-     * @param id 상품 ID
+     * @param productId 상품 ID
      * @param request 옵션 등록 요청 DTO
      * @return 등록된 옵션 정보
      */
     @Transactional
-    public ProductOptionResponse createProductOption(Long id, ProductOptionRequest request) {
-        Product product = productRepository.findById(id)
+    public ProductOptionResponse createProductOption(Long productId, ProductOptionRequest request) {
+        Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
 
         // 현재 활성화된 옵션 개수 확인 (비활성화 옵션 제외)
-        long activeOptionCount = productOptionRepository.countByProductIdAndIsActive(id, true);
+        long activeOptionCount = productOptionRepository.countByProductIdAndIsActive(productId, true);
 
         if (activeOptionCount >= 3) {
             throw new CustomException(ErrorCode.OPTION_LIMIT_EXCEEDED);
         }
 
         ProductOption option = ProductOption.builder()
-                                                .product(product)
-                                                .optionName(request.getOptionName())
-                                                .optionType(request.getOptionType())
-                                                .optionPrice(request.getOptionPrice())
-                                                .build();
+                                            .product(product)
+                                            .optionName(request.getOptionName())
+                                            .optionType(request.getOptionType())
+                                            .optionPrice(request.getOptionPrice())
+                                            .build();
 
         ProductOption savedOption = productOptionRepository.save(option);
         log.info("옵션 등록 완료: id={}, optionName={}, optionType={}, optionPrice={}"
@@ -69,21 +69,21 @@ public class ProductOptionService {
     /**
      * 상품 옵션 수정
      *
-     * @param id 수정할 상품 옵션 ID
+     * @param optionId 수정할 상품 옵션 ID
      * @param request 수정할 상품 옵션 정보
      * @return 수정된 상품 옵션 정보
      */
     @Transactional
-    public ProductOptionResponse updateProductOption(Long id, ProductOptionRequest request) {
-        ProductOption option = productOptionRepository.findById(id)
+    public ProductOptionResponse updateProductOption(Long optionId, ProductOptionRequest request) {
+        ProductOption option = productOptionRepository.findById(optionId)
                 .orElseThrow(() -> new CustomException(ErrorCode.OPTION_NOT_FOUND));
 
-        boolean hasOptionOrder = orderService.hasOptionOrders(id);
-        log.info("옵션 수정 요청 - ID: {}, hasOptionOrder: {}, isActive: {}", id, hasOptionOrder, option.isActive());
+        boolean hasOptionOrder = orderService.hasOptionOrders(optionId);
+        log.info("옵션 수정 요청 - optionId: {}, hasOptionOrder: {}, isActive: {}", optionId, hasOptionOrder, option.isActive());
 
         // 기존 옵션이 주문된 상태라면 수정 불가
         if (!option.isUpdatable(hasOptionOrder)) {
-            log.warn("옵션 수정 불가 - 주문된 상품은 수정할 수 없습니다.");
+            log.warn("옵션 수정 불가 - 주문된 옵션은 수정할 수 없습니다.");
             throw new CustomException(ErrorCode.OPTION_CANNOT_BE_UPDATED);
         }
 
@@ -96,7 +96,7 @@ public class ProductOptionService {
         }
 
         option.update(request.getOptionName(), request.getOptionType(), request.getOptionPrice(), hasOptionOrder);
-        log.info("옵션 수정 완료: id={}, optionName={}, optionType={}, optionPrice={}"
+        log.info("옵션 수정 완료: optionId={}, optionName={}, optionType={}, optionPrice={}"
                 , option.getId(), option.getOptionName(), option.getOptionType(), option.getOptionPrice());
 
         return convertToResponseDto(option);
@@ -105,66 +105,66 @@ public class ProductOptionService {
     /**
      * 상품 옵션 삭제
      *
-     * @param id 삭제할 상품 옵션 ID
+     * @param optionId 삭제할 상품 옵션 ID
      */
     @Transactional
-    public void deleteProductOption(Long id) {
-        ProductOption option = productOptionRepository.findById(id)
+    public void deleteProductOption(Long optionId) {
+        ProductOption option = productOptionRepository.findById(optionId)
                 .orElseThrow(() -> new CustomException(ErrorCode.OPTION_NOT_FOUND));
 
-        boolean hasOptionOrder = orderService.hasOptionOrders(id);
-        log.info("옵션 삭제 요청 - ID: {}, hasOptionOrder: {}, isActive: {}", id, hasOptionOrder, option.isActive());
+        boolean hasOptionOrder = orderService.hasOptionOrders(optionId);
+        log.info("옵션 삭제 요청 - optionId: {}, hasOptionOrder: {}, isActive: {}", optionId, hasOptionOrder, option.isActive());
 
         // 기존 옵션이 주문된 상태라면 삭제 불가
         if (!option.isDeletable(hasOptionOrder)) {
-            log.warn("옵션 삭제 불가 - 주문된 상품은 삭제할 수 없습니다.");
+            log.warn("옵션 삭제 불가 - 주문된 옵션은 삭제할 수 없습니다.");
             throw new CustomException(ErrorCode.OPTION_CANNOT_BE_DELETED);
         }
 
         productOptionRepository.delete(option);
-        log.info("옵션 삭제 완료: id={}", option.getId());
+        log.info("옵션 삭제 완료: optionId={}", option.getId());
     }
 
     /**
      * 옵션 활성화
      *
-     * @param id 활성화할 옵션 ID
+     * @param optionId 활성화할 옵션 ID
      */
     @Transactional
-    public void activateOption(Long id) {
-        ProductOption option = productOptionRepository.findById(id)
+    public void activateOption(Long optionId) {
+        ProductOption option = productOptionRepository.findById(optionId)
                 .orElseThrow(() -> new CustomException(ErrorCode.OPTION_NOT_FOUND));
 
         long activeOptionCount = productOptionRepository.countByProductIdAndIsActive(option.getProduct().getId(), true);
 
         option.activate((int) activeOptionCount);
-        log.info("옵션 활성화 완료: id={}", option.getId());
+        log.info("옵션 활성화 완료: optionId={}", option.getId());
     }
 
     /**
      * 옵션 비활성화
      *
-     * @param id 비활성화할 옵션 ID
+     * @param optionId 비활성화할 옵션 ID
      */
     @Transactional
-    public void deactivateOption(Long id) {
-        ProductOption option = productOptionRepository.findById(id)
+    public void deactivateOption(Long optionId) {
+        ProductOption option = productOptionRepository.findById(optionId)
                 .orElseThrow(() -> new CustomException(ErrorCode.OPTION_NOT_FOUND));
 
         option.deactivate();
-        log.info("옵션 비활성화 완료: id={}", option.getId());
+        log.info("옵션 비활성화 완료: optionId={}", option.getId());
     }
 
     /**
      * 상품의 모든 옵션 조회 (활성화 + 비활성화)
      *
-     * @param id 상품 ID
+     * @param productId 상품 ID
      * @return 해당 상품의 모든 옵션 리스트
      */
     @Transactional(readOnly = true)
-    public List<ProductOptionResponse> getAllOptionsByProduct(Long id) {
-        List<ProductOption> options = productOptionRepository.findByProductId(id);
-        log.info("상품의 모든 옵션 조회 - id: {}, optionsCount: {}", id, options.size());
+    public List<ProductOptionResponse> getAllOptionsByProduct(Long productId) {
+        List<ProductOption> options = productOptionRepository.findByProductId(productId);
+        log.info("상품의 모든 옵션 조회 - productId: {}, optionsCount: {}", productId, options.size());
 
         return options.stream().map(this::convertToResponseDto).collect(Collectors.toList());
     }
@@ -172,17 +172,17 @@ public class ProductOptionService {
     /**
      * 상품의 활성화된 옵션 조회
      *
-     * @param id 상품 ID
+     * @param productId 상품 ID
      * @return 해당 상품의 활성화된 옵션 리스트
      */
     @Transactional(readOnly = true)
-    public List<ProductOptionResponse> getActiveOptionsByProduct(Long id) {
-        List<ProductOption> activeOptions = productOptionRepository.findByProductIdAndIsActiveTrue(id);
+    public List<ProductOptionResponse> getActiveOptionsByProduct(Long productId) {
+        List<ProductOption> activeOptions = productOptionRepository.findByProductIdAndIsActiveTrue(productId);
 
         if (activeOptions.isEmpty()) {
-            log.warn("상품의 활성화된 옵션이 없습니다 - id: {}", id);
+            log.warn("상품의 활성화된 옵션이 없습니다 - productId: {}", productId);
         } else {
-            log.info("상품의 활성화된 옵션 조회 - id: {}, activeOptionsCount: {}", id, activeOptions.size());
+            log.info("상품의 활성화된 옵션 조회 - productId: {}, activeOptionsCount: {}", productId, activeOptions.size());
         }
 
         return activeOptions.stream().map(this::convertToResponseDto).collect(Collectors.toList());
