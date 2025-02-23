@@ -3,7 +3,10 @@ package com.soli.frankit.entity;
 import com.soli.frankit.exception.CustomException;
 import com.soli.frankit.exception.ErrorCode;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -126,6 +129,19 @@ public class ProductOption {
     }
 
     /**
+     * 옵션 수정 가능 여부 확인
+     * 1. 주문되지 않은 옵션만 수정 가능
+     *
+     * @param hasOptionOrder 옵션 주문 여부
+     * @return 수정 가능 여부 (true: 수정 가능, false: 수정 불가)
+     */
+    public boolean isUpdatable(boolean hasOptionOrder) {
+        boolean updatable = !hasOptionOrder;
+        log.info("옵션 수정 가능 여부 확인 - hasOptionOrder: {}, updatable: {}", hasOptionOrder, updatable);
+        return updatable;
+    }
+
+    /**
      * 옵션 삭제 가능 여부 확인
      * 1. 주문되지 않은 상품의 옵션 → 활성화 상태여도 삭제 가능
      * 2. 주문된 상품의 옵션 → 절대 삭제 불가능
@@ -137,19 +153,6 @@ public class ProductOption {
         boolean deletable = !hasOptionOrder;
         log.info("옵션 삭제 가능 여부 확인 - hasOptionOrder: {}, deletable: {}", hasOptionOrder, deletable);
         return deletable;
-    }
-
-    /**
-     * 옵션 수정 가능 여부 확인
-     * 1. 주문되지 않은 옵션만 수정 가능
-     *
-     * @param hasOptionOrder 옵션 주문 여부
-     * @return 수정 가능 여부 (true: 수정 가능, false: 수정 불가)
-     */
-    public boolean isUpdatable(boolean hasOptionOrder) {
-        boolean updatable = !hasOptionOrder;
-        log.info("옵션 수정 가능 여부 확인 - hasOptionOrder: {}, updatable: {}", hasOptionOrder, updatable);
-        return updatable;
     }
 
 }
