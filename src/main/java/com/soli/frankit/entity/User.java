@@ -27,21 +27,21 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_seq")
-    private Long id;
+    private Long id; // 사용자 ID
 
     @Column(unique = true, nullable = false)
-    private String email;
+    private String email; // 이메일
 
     @Column(nullable = false)
-    private String password;
+    private String password; // 비밀번호
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt; // 등록일
 
     @UpdateTimestamp
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    private LocalDateTime updatedAt; // 수정일
 
     /**
      * User 생성자
