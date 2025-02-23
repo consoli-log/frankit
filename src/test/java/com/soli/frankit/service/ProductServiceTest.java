@@ -133,31 +133,6 @@ class ProductServiceTest {
     }
 
     @Test
-    @DisplayName("상품 비활성화 성공")
-    void deactivateProductSuccess() {
-        // Given
-        when(productRepository.findById(validId)).thenReturn(Optional.of(activeProduct));
-
-        // When
-        productService.deactivateProduct(validId);
-
-        // Then
-        assertThat(activeProduct.isActive()).isFalse();
-        verify(productRepository, times(1)).findById(validId);
-    }
-
-    @Test
-    @DisplayName("상품 비활성화 실패 - 존재하지 않는 상품")
-    void deactivateProductFail_ProductNotFound() {
-        // Given
-        when(productRepository.findById(invalidId)).thenReturn(Optional.empty());
-
-        // When & Then
-        assertThatThrownBy(() -> productService.deactivateProduct(invalidId)).isInstanceOf(CustomException.class)
-                .hasMessageContaining(ErrorCode.PRODUCT_NOT_FOUND.getMessage());
-    }
-
-    @Test
     @DisplayName("상품 삭제 성공 - 주문되지 않은 상품(활성화 상태)")
     void deleteProductSuccess_ActiveProductWithoutOrder() {
         // Given
@@ -218,6 +193,31 @@ class ProductServiceTest {
         // When & Then
         assertThatThrownBy(() -> productService.deleteProduct(validId)).isInstanceOf(CustomException.class)
                 .hasMessageContaining(ErrorCode.PRODUCT_CANNOT_BE_DELETED.getMessage());
+    }
+
+    @Test
+    @DisplayName("상품 비활성화 성공")
+    void deactivateProductSuccess() {
+        // Given
+        when(productRepository.findById(validId)).thenReturn(Optional.of(activeProduct));
+
+        // When
+        productService.deactivateProduct(validId);
+
+        // Then
+        assertThat(activeProduct.isActive()).isFalse();
+        verify(productRepository, times(1)).findById(validId);
+    }
+
+    @Test
+    @DisplayName("상품 비활성화 실패 - 상품이 존재하지 않음")
+    void deactivateProductFail_ProductNotFound() {
+        // Given
+        when(productRepository.findById(invalidId)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> productService.deactivateProduct(invalidId)).isInstanceOf(CustomException.class)
+                .hasMessageContaining(ErrorCode.PRODUCT_NOT_FOUND.getMessage());
     }
 
     @Test

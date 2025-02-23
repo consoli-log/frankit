@@ -38,50 +38,50 @@ public class ProductController {
     /**
      * 상품 수정 API
      *
-     * @param id 수정할 상품 ID
+     * @param productId 수정할 상품 ID
      * @param request 수정할 상품 정보 DTO
      * @return 수정된 상품 정보 응답 DTO
      */
-    @PutMapping("/{id}")
-    public ResponseEntity<ProductResponse> updateProduct(@PathVariable Long id,
+    @PutMapping("/{productId}")
+    public ResponseEntity<ProductResponse> updateProduct(@PathVariable Long productId,
                                                          @Valid @RequestBody ProductRequest request) {
-        ProductResponse response = productService.updateProduct(id, request);
+        ProductResponse response = productService.updateProduct(productId, request);
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 상품 삭제 API
+     *
+     * @param productId 삭제할 상품 ID
+     * @return 응답 코드 204 (No Content)
+     */
+    @DeleteMapping("/{productId}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable Long productId) {
+        productService.deleteProduct(productId);
+        return ResponseEntity.noContent().build();
     }
 
     /**
      * 상품 활성화 API
      *
-     * @param id 활성화할 상품 ID
+     * @param productId 활성화할 상품 ID
      * @return 응답 코드 204 (No Content)
      */
-    @PutMapping("/{id}/activate")
-    public ResponseEntity<Void> activateProduct(@PathVariable Long id) {
-        productService.activateProduct(id);
+    @PutMapping("/{productId}/activate")
+    public ResponseEntity<Void> activateProduct(@PathVariable Long productId) {
+        productService.activateProduct(productId);
         return ResponseEntity.noContent().build();
     }
 
     /**
      * 상품 비활성화 API
      *
-     * @param id 비활성화할 상품 ID
+     * @param productId 비활성화할 상품 ID
      * @return 응답 코드 204 (No Content)
      */
-    @PutMapping("/{id}/deactivate")
-    public ResponseEntity<Void> deactivateProduct(@PathVariable Long id) {
-        productService.deactivateProduct(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    /**
-     * 상품 삭제 API
-     *
-     * @param id 삭제할 상품 ID
-     * @return 응답 코드 204 (No Content)
-     */
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
-        productService.deleteProduct(id);
+    @PutMapping("/{productId}/deactivate")
+    public ResponseEntity<Void> deactivateProduct(@PathVariable Long productId) {
+        productService.deactivateProduct(productId);
         return ResponseEntity.noContent().build();
     }
 
@@ -91,9 +91,9 @@ public class ProductController {
      * @param id 조회할 상품 ID
      * @return 조회된 상품 정보
      */
-    @GetMapping("/{id}")
-    public ResponseEntity<ProductResponse> getProductById(@PathVariable Long id) {
-        ProductResponse response = productService.getProductById(id);
+    @GetMapping("/{productId}")
+    public ResponseEntity<ProductResponse> getProductById(@PathVariable Long productId) {
+        ProductResponse response = productService.getProductById(productId);
         return ResponseEntity.ok(response);
     }
 
@@ -105,9 +105,8 @@ public class ProductController {
      * @return 페이징된 상품 목록 정보
      */
     @GetMapping
-    public ResponseEntity<Page<ProductResponse>> getAllProducts(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<Page<ProductResponse>> getAllProducts(@RequestParam(defaultValue = "0") int page,
+                                                                @RequestParam(defaultValue = "10") int size) {
         Page<ProductResponse> response = productService.getAllProducts(page, size);
         return ResponseEntity.ok(response);
     }

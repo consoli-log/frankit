@@ -42,7 +42,7 @@ public class ProductResponse {
                 .description(product.getDescription())
                 .price(product.getPrice())
                 .shippingFee(product.getShippingFee())
-                .isActive(product.isActive()) // 활성화 상태 추가
+                .isActive(product.isActive())
                 .createdAt(product.getCreatedAt())
                 .updatedAt(product.getUpdatedAt())
                 .build();
