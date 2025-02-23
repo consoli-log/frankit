@@ -30,6 +30,8 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
+    private final OrderService orderService;
+
     /**
      * 상품 등록
      *
@@ -72,17 +74,54 @@ public class ProductService {
     }
 
     /**
+     * 상품 활성화
+     *
+     * @param id 활성화할 상품 ID
+     */
+    @Transactional
+    public void activateProduct(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        product.activate();
+        log.info("상품 활성화 완료: id={}", product.getId());
+    }
+
+    /**
+     * 상품 비활성화
+     *
+     * @param id 비활성화할 상품 ID
+     */
+    @Transactional
+    public void deactivateProduct(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        product.deactivate();
+        log.info("상품 비활성화 완료: id={}", product.getId());
+    }
+
+    /**
      * 상품 삭제
      *
-     * @param  id 식제할 상품 ID
+     * @param  id 삭제할 상품 ID
      */
     @Transactional
     public void deleteProduct(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
 
+        boolean hasOrder = orderService.hasOrders(id); // 주문 여부 확인
+        log.info("상품 삭제 요청 - ID: {}, hasOrder: {}, isActive: {}", id, hasOrder, product.isActive());
+
+        // 삭제 가능 여부 확인
+        if (hasOrder) {
+            log.warn("상품 삭제 불가 - 주문된 상품은 삭제할 수 없습니다.");
+            throw new CustomException(ErrorCode.PRODUCT_CANNOT_BE_DELETED);
+        }
+
         productRepository.delete(product);
-        log.info("상품 삭제 완료: id={}", id);
+        log.info("상품 삭제 완료: id={}", product.getId());
     }
 
     /**
@@ -133,15 +172,7 @@ public class ProductService {
      * @return 상품 응답 DTO
      */
     private ProductResponse convertToResponseDto(Product product) {
-        return ProductResponse.builder()
-                                .id(product.getId())
-                                .name(product.getName())
-                                .description(product.getDescription())
-                                .price(product.getPrice())
-                                .shippingFee(product.getShippingFee())
-                                .createdAt(product.getCreatedAt())
-                                .updatedAt(product.getUpdatedAt())
-                                .build();
+        return ProductResponse.from(product);
     }
 
 }

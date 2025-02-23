@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soli.frankit.config.TestSecurityConfig;
 import com.soli.frankit.dto.ProductRequest;
 import com.soli.frankit.dto.ProductResponse;
+import com.soli.frankit.entity.Product;
 import com.soli.frankit.exception.CustomException;
 import com.soli.frankit.exception.ErrorCode;
+import com.soli.frankit.service.OrderService;
 import com.soli.frankit.service.ProductService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -46,6 +48,9 @@ class ProductControllerTest {
     @MockitoBean
     private ProductService productService;
 
+    @MockitoBean
+    private OrderService orderService;
+
     private Long validId;
     private Long invalidId;
 
@@ -59,6 +64,10 @@ class ProductControllerTest {
 
     private ProductResponse validResponse;
     private ProductResponse validUpdateResponse;
+
+    private Product activeProduct;
+    private Product inactiveProduct;
+
 
     @BeforeEach
     void setUp() {
@@ -88,6 +97,22 @@ class ProductControllerTest {
                                                 .price(BigDecimal.valueOf(50000))
                                                 .shippingFee(BigDecimal.valueOf(1500))
                                                 .build();
+
+        activeProduct = Product.builder()
+                .name("활성화 상품명")
+                .description("활성화 상품 설명")
+                .price(BigDecimal.valueOf(10000))
+                .shippingFee(BigDecimal.valueOf(1000))
+                .build();
+
+        inactiveProduct = Product.builder()
+                .name("비활성화 상품명")
+                .description("비활성화 상품 설명")
+                .price(BigDecimal.valueOf(15000))
+                .shippingFee(BigDecimal.valueOf(1500))
+                .build();
+        inactiveProduct.deactivate();
+
     }
 
     @Test
@@ -149,7 +174,7 @@ class ProductControllerTest {
     void updateProductFail_ProductNotFound() throws Exception {
         // Given
         doThrow(new CustomException(ErrorCode.PRODUCT_NOT_FOUND))
-                .when(productService).updateProduct(invalidId, any(ProductRequest.class));
+                .when(productService).updateProduct(eq(invalidId), any(ProductRequest.class));
 
         // When & Then
         mockMvc.perform(put("/api/products/{id}", invalidId)
@@ -180,10 +205,75 @@ class ProductControllerTest {
     }
 
     @Test
-    @DisplayName("상품 삭제 성공 (200)")
-    void deleteProductSuccess() throws Exception {
+    @DisplayName("상품 활성화 성공 (204)")
+    void activateProductSuccess() throws Exception {
+        mockMvc.perform(put("/api/products/{id}/activate", validId))
+                .andExpect(status().isNoContent());
+
+        verify(productService, times(1)).activateProduct(validId);
+    }
+
+    @Test
+    @DisplayName("상품 활성화 실패 - 존재하지 않는 상품 (404)")
+    void activateProductFail_ProductNotFound() throws Exception {
+        // Given
+        doThrow(new CustomException(ErrorCode.PRODUCT_NOT_FOUND))
+                .when(productService).activateProduct(invalidId);
+
+        // When & Then
+        mockMvc.perform(put("/api/products/{id}/activate", invalidId))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value(ErrorCode.PRODUCT_NOT_FOUND.getMessage()));
+    }
+
+    @Test
+    @DisplayName("상품 비활성화 성공 (204)")
+    void deactivateProductSuccess() throws Exception {
+        mockMvc.perform(put("/api/products/{id}/deactivate", validId))
+                .andExpect(status().isNoContent());
+
+        verify(productService, times(1)).deactivateProduct(validId);
+    }
+
+    @Test
+    @DisplayName("상품 비활성화 실패 - 존재하지 않는 상품 (404)")
+    void deactivateProductFail_ProductNotFound() throws Exception {
+        // Given
+        doThrow(new CustomException(ErrorCode.PRODUCT_NOT_FOUND))
+                .when(productService).deactivateProduct(invalidId);
+
+        // When & Then
+        mockMvc.perform(put("/api/products/{id}/deactivate", invalidId))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value(ErrorCode.PRODUCT_NOT_FOUND.getMessage()));
+    }
+
+    @Test
+    @DisplayName("상품 삭제 성공 - 주문되지 않은 상품(활성화 상태) (204)")
+    void deleteProductSuccess_ActiveProductWithoutOrder() throws Exception {
+        // Given
+        when(orderService.hasOrders(validId)).thenReturn(false); // 주문되지 않음
+        when(productService.getProductById(validId)).thenReturn(ProductResponse.from(activeProduct));
+
+        // When & Then
         mockMvc.perform(delete("/api/products/{id}", validId))
                 .andExpect(status().isNoContent());
+
+        verify(productService, times(1)).deleteProduct(validId);
+    }
+
+    @Test
+    @DisplayName("상품 삭제 성공 - 주문되지 않은 상품(비활성화 상태) (204)")
+    void deleteProductSuccess_InactiveProductWithoutOrder() throws Exception {
+        // Given
+        when(orderService.hasOrders(validId)).thenReturn(false); // 주문되지 않음
+        when(productService.getProductById(validId)).thenReturn(ProductResponse.from(inactiveProduct));
+
+        // When & Then
+        mockMvc.perform(delete("/api/products/{id}", validId))
+                .andExpect(status().isNoContent());
+
+        verify(productService, times(1)).deleteProduct(validId);
     }
 
     @Test
@@ -197,6 +287,19 @@ class ProductControllerTest {
         mockMvc.perform(delete("/api/products/{id}", invalidId))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value(ErrorCode.PRODUCT_NOT_FOUND.getMessage()));
+    }
+
+    @Test
+    @DisplayName("상품 삭제 실패 - 주문된 상품 (400)")
+    void deleteProductFail_ActiveProductWithOrder() throws Exception {
+        // Given
+        doThrow(new CustomException(ErrorCode.PRODUCT_CANNOT_BE_DELETED))
+                .when(productService).deleteProduct(validId);
+
+        // When & Then
+        mockMvc.perform(delete("/api/products/{id}", validId))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value(ErrorCode.PRODUCT_CANNOT_BE_DELETED.getMessage()));
     }
 
     @Test

@@ -38,14 +38,39 @@ public class ProductController {
     /**
      * 상품 수정 API
      *
-     * @param id      수정할 상품 ID
+     * @param id 수정할 상품 ID
      * @param request 수정할 상품 정보 DTO
      * @return 수정된 상품 정보 응답 DTO
      */
     @PutMapping("/{id}")
-    public ResponseEntity<ProductResponse> updateProduct(@PathVariable Long id, @Valid @RequestBody ProductRequest request) {
+    public ResponseEntity<ProductResponse> updateProduct(@PathVariable Long id,
+                                                         @Valid @RequestBody ProductRequest request) {
         ProductResponse response = productService.updateProduct(id, request);
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 상품 활성화 API
+     *
+     * @param id 활성화할 상품 ID
+     * @return 응답 코드 204 (No Content)
+     */
+    @PutMapping("/{id}/activate")
+    public ResponseEntity<Void> activateProduct(@PathVariable Long id) {
+        productService.activateProduct(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * 상품 비활성화 API
+     *
+     * @param id 비활성화할 상품 ID
+     * @return 응답 코드 204 (No Content)
+     */
+    @PutMapping("/{id}/deactivate")
+    public ResponseEntity<Void> deactivateProduct(@PathVariable Long id) {
+        productService.deactivateProduct(id);
+        return ResponseEntity.noContent().build();
     }
 
     /**

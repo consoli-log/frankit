@@ -30,6 +30,8 @@ public enum ErrorCode {
 
     // 상품 관련 예외
     PRODUCT_NOT_FOUND(NOT_FOUND, "상품을 찾을 수 없습니다."),
+    PRODUCT_CANNOT_BE_DELETED(BAD_REQUEST, "이미 주문된 상품은 삭제할 수 없습니다."),
+    PRODUCT_ALREADY_ACTIVE(BAD_REQUEST, "이미 활성화된 상품입니다."),
 
     // 기타 예외
     INVALID_REQUEST(BAD_REQUEST, "잘못된 요청입니다."),

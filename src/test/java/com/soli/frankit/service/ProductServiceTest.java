@@ -45,10 +45,15 @@ class ProductServiceTest {
     @Mock
     private ProductRepository productRepository;
 
+    @Mock
+    private OrderService orderService;
+
     private Long validId;
     private Long invalidId;
 
     private Product validProduct;
+    private Product activeProduct;
+    private Product inactiveProduct;
 
     private ProductRequest validCreateRequest;
     private ProductRequest validUpdateRequest;
@@ -64,6 +69,21 @@ class ProductServiceTest {
                                 .price(BigDecimal.valueOf(20000))
                                 .shippingFee(BigDecimal.valueOf(3000))
                                 .build();
+
+        activeProduct = Product.builder()
+                                .name("활성화 상품명")
+                                .description("활성화 상품 설명")
+                                .price(BigDecimal.valueOf(10000))
+                                .shippingFee(BigDecimal.valueOf(1000))
+                                .build();
+
+        inactiveProduct = Product.builder()
+                                    .name("비활성화 상품명")
+                                    .description("비활성화 상품 설명")
+                                    .price(BigDecimal.valueOf(15000))
+                                    .shippingFee(BigDecimal.valueOf(1500))
+                                    .build();
+        inactiveProduct.deactivate();
 
         validCreateRequest = new ProductRequest("새 상품명", "새 상품 설명", BigDecimal.valueOf(10000), BigDecimal.valueOf(4000));
         validUpdateRequest = new ProductRequest("상품명 수정", "상품 설명 수정", BigDecimal.valueOf(50000), BigDecimal.valueOf(1500));
@@ -113,16 +133,56 @@ class ProductServiceTest {
     }
 
     @Test
-    @DisplayName("상품 삭제 성공")
-    void deleteProductSuccess() {
+    @DisplayName("상품 비활성화 성공")
+    void deactivateProductSuccess() {
         // Given
-        when(productRepository.findById(validId)).thenReturn(Optional.of(validProduct));
+        when(productRepository.findById(validId)).thenReturn(Optional.of(activeProduct));
+
+        // When
+        productService.deactivateProduct(validId);
+
+        // Then
+        assertThat(activeProduct.isActive()).isFalse();
+        verify(productRepository, times(1)).findById(validId);
+    }
+
+    @Test
+    @DisplayName("상품 비활성화 실패 - 존재하지 않는 상품")
+    void deactivateProductFail_ProductNotFound() {
+        // Given
+        when(productRepository.findById(invalidId)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> productService.deactivateProduct(invalidId)).isInstanceOf(CustomException.class)
+                .hasMessageContaining(ErrorCode.PRODUCT_NOT_FOUND.getMessage());
+    }
+
+    @Test
+    @DisplayName("상품 삭제 성공 - 주문되지 않은 상품(활성화 상태)")
+    void deleteProductSuccess_ActiveProductWithoutOrder() {
+        // Given
+        when(orderService.hasOrders(validId)).thenReturn(false); // 주문되지 않은 상태
+        when(productRepository.findById(validId)).thenReturn(Optional.of(activeProduct));
 
         // When
         productService.deleteProduct(validId);
 
         // Then
-        verify(productRepository, times(1)).delete(validProduct);
+        verify(productRepository, times(1)).delete(activeProduct);
+    }
+
+    @Test
+    @DisplayName("상품 삭제 성공 - 주문되지 않은 상품(활성화 상태)")
+    void deleteProductSuccess_InactiveProductWithoutOrder() {
+        // Given
+        when(orderService.hasOrders(validId)).thenReturn(false); // 주문되지 않은 상태
+        when(productRepository.findById(validId)).thenReturn(Optional.of(inactiveProduct));
+
+        // When
+        productService.deleteProduct(validId);
+
+        // Then
+        verify(productRepository, times(1)).delete(inactiveProduct);
     }
 
     @Test
@@ -134,6 +194,30 @@ class ProductServiceTest {
         // When & Then
         assertThatThrownBy(() -> productService.deleteProduct(invalidId)).isInstanceOf(CustomException.class)
                 .hasMessageContaining(ErrorCode.PRODUCT_NOT_FOUND.getMessage());
+    }
+
+    @Test
+    @DisplayName("상품 삭제 실패 - 주문된 상품(활성화 상태)")
+    void deleteProductFail_ActiveProductWithOrder() {
+        // Given
+        when(orderService.hasOrders(validId)).thenReturn(true); // 주문됨
+        when(productRepository.findById(validId)).thenReturn(Optional.of(activeProduct));
+
+        // When & Then
+        assertThatThrownBy(() -> productService.deleteProduct(validId)).isInstanceOf(CustomException.class)
+                .hasMessageContaining(ErrorCode.PRODUCT_CANNOT_BE_DELETED.getMessage());
+    }
+
+    @Test
+    @DisplayName("상품 삭제 실패 - 주문된 상품(비활성화 상태)")
+    void deleteProductFail_InactiveProductWithOrder() {
+        // Given
+        when(orderService.hasOrders(validId)).thenReturn(true); // 주문됨
+        when(productRepository.findById(validId)).thenReturn(Optional.of(inactiveProduct));
+
+        // When & Then
+        assertThatThrownBy(() -> productService.deleteProduct(validId)).isInstanceOf(CustomException.class)
+                .hasMessageContaining(ErrorCode.PRODUCT_CANNOT_BE_DELETED.getMessage());
     }
 
     @Test
