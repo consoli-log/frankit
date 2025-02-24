@@ -48,8 +48,7 @@ public class ProductService {
                                     .build();
 
         Product savedProduct = productRepository.save(product);
-        log.info("상품 등록 완료: id={}, name={}, description={}, price={}, shippingFee={}"
-                , savedProduct.getId(), savedProduct.getName(), savedProduct.getDescription(), savedProduct.getPrice(), savedProduct.getShippingFee() );
+        log.info("상품 등록 완료: {}", savedProduct);
 
         return convertToResponseDto(savedProduct);
     }
@@ -57,18 +56,17 @@ public class ProductService {
     /**
      * 상품 수정
      *
-     * @param id 수정할 상품 ID
+     * @param productId 수정할 상품 ID
      * @param request 수정할 상품 정보
      * @return 수정된 상품 정보
      */
     @Transactional
-    public ProductResponse updateProduct(Long id, ProductRequest request) {
-        Product product = productRepository.findById(id)
+    public ProductResponse updateProduct(Long productId, ProductRequest request) {
+        Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
 
         product.update(request.getName(), request.getDescription(), request.getPrice(), request.getShippingFee());
-        log.info("상품 수정 완료: id={}, name={}, description={}, price={}, shippingFee={}"
-                , product.getId(), product.getName(), product.getDescription(), product.getPrice(), product.getShippingFee() );
+        log.info("상품 수정 완료: {}", product);
 
         return convertToResponseDto(product);
     }
@@ -76,15 +74,15 @@ public class ProductService {
     /**
      * 상품 삭제
      *
-     * @param  id 삭제할 상품 ID
+     * @param  productId 삭제할 상품 ID
      */
     @Transactional
-    public void deleteProduct(Long id) {
-        Product product = productRepository.findById(id)
+    public void deleteProduct(Long productId) {
+        Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
 
-        boolean hasOrder = orderService.hasOrders(id); // 주문 여부 확인
-        log.info("상품 삭제 요청 - ID: {}, hasOrder: {}, isActive: {}", id, hasOrder, product.isActive());
+        boolean hasOrder = orderService.hasOrders(productId); // 주문 여부 확인
+        log.info("상품 삭제 요청 - productId: {}, hasOrder: {}, isActive: {}", productId, hasOrder, product.isActive());
 
         // 삭제 가능 여부 확인
         if (!product.isDeletable(hasOrder)) {
@@ -93,50 +91,49 @@ public class ProductService {
         }
 
         productRepository.delete(product);
-        log.info("상품 삭제 완료: id={}", product.getId());
+        log.info("상품 삭제 완료: productId={}", productId);
     }
 
     /**
      * 상품 활성화
      *
-     * @param id 활성화할 상품 ID
+     * @param productId 활성화할 상품 ID
      */
     @Transactional
-    public void activateProduct(Long id) {
-        Product product = productRepository.findById(id)
+    public void activateProduct(Long productId) {
+        Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
 
         product.activate();
-        log.info("상품 활성화 완료: id={}", product.getId());
+        log.info("상품 활성화 완료: {}", product);
     }
 
     /**
      * 상품 비활성화
      *
-     * @param id 비활성화할 상품 ID
+     * @param productId 비활성화할 상품 ID
      */
     @Transactional
-    public void deactivateProduct(Long id) {
-        Product product = productRepository.findById(id)
+    public void deactivateProduct(Long productId) {
+        Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
 
         product.deactivate();
-        log.info("상품 비활성화 완료: id={}", product.getId());
+        log.info("상품 비활성화 완료: {}", product);
     }
 
     /**
      * 상품 단건 조회
      *
-     * @param id 조회할 상품 ID
+     * @param productId 조회할 상품 ID
      * @return 조회된 상품 정보
      */
     @Transactional(readOnly = true)
-    public ProductResponse getProductById(Long id) {
-        Product product = productRepository.findById(id)
+    public ProductResponse getProductById(Long productId) {
+        Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
 
-        log.info("상품 조회 완료: id={}, name={}, description={}, price={}, shippingFee={}"
-                , product.getId(), product.getName(), product.getDescription(), product.getPrice(), product.getShippingFee() );
+        log.info("상품 조회 완료: {}", product);
 
         return convertToResponseDto(product);
     }
@@ -154,8 +151,7 @@ public class ProductService {
 
         Page<Product> products = productRepository.findAll(pageable);
 
-        log.info("상품 목록 조회 완료: page={}, size={}, totalElements={}",
-                page, size, products.getTotalElements());
+        log.info("상품 목록 조회 완료: page={}, size={}, totalElements={}", page, size, products.getTotalElements());
 
         products.getContent().forEach(product ->
                 log.info("상품 목록 정보: id={}, name={}, price={}, shippingFee={}",
