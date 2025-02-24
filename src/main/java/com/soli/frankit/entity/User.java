@@ -29,7 +29,7 @@ public class User {
     @Column(name = "user_seq")
     private Long id; // 사용자 ID
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = false, length = 100)
     private String email; // 이메일
 
     @Column(nullable = false)
@@ -53,6 +53,15 @@ public class User {
     public User(String email, String password) {
         this.email = email;
         this.password = password;
+    }
+
+    /**
+     * 비밀번호 변경 메서드
+     *
+     * @param newPassword 새로운 비밀번호
+     */
+    public void updatePassword(String newPassword) {
+        this.password = newPassword;
     }
 
 }

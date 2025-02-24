@@ -25,4 +25,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
      */
     Optional<User> findByEmail(String email);
 
+    /**
+     * 이메일이 이미 존재하는지 확인
+     *
+     * @param email 사용자 이메일
+     * @return 존재 여부 (true: 존재함, false: 존재하지 않음)
+     */
+    boolean existsByEmail(String email);
 }

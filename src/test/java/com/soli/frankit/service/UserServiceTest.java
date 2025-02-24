@@ -1,7 +1,8 @@
 package com.soli.frankit.service;
 
 import com.soli.frankit.config.TestEnvConfig;
-import com.soli.frankit.dto.RegisterRequest;
+import com.soli.frankit.dto.UserRequest;
+import com.soli.frankit.dto.UserResponse;
 import com.soli.frankit.entity.User;
 import com.soli.frankit.exception.CustomException;
 import com.soli.frankit.exception.ErrorCode;
@@ -16,7 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.Optional;
+import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -44,38 +45,41 @@ public class UserServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
-    private RegisterRequest validRequest;
-    private RegisterRequest duplicateRequest;
+    private UserRequest validRequest;
+    private UserRequest duplicateRequest;
 
     @BeforeEach
     void setUp() {
-        validRequest = new RegisterRequest("soli@test.com", "solitest1216");
-        duplicateRequest = new RegisterRequest("duplicate@test.com", "solitest1216");
+        validRequest = new UserRequest("soli@test.com", "solitest1216");
+        duplicateRequest = new UserRequest("duplicate@test.com", "solitest1216");
     }
 
     @Test
     @DisplayName("회원가입 성공")
     void registerSuccess() {
         // Given
-        when(userRepository.findByEmail(validRequest.getEmail())).thenReturn(Optional.empty());
+        when(userRepository.existsByEmail(validRequest.getEmail())).thenReturn(false);
         when(passwordEncoder.encode(validRequest.getPassword())).thenReturn("encodedPassword");
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
+            User savedUser = invocation.getArgument(0);
+            return new User(savedUser.getEmail(), savedUser.getPassword());
+        });
 
         // When
-        User user = userService.register(validRequest);
+        UserResponse response = userService.register(validRequest);
+        response = new UserResponse(response.getEmail(), LocalDateTime.now());
 
         // Then
-        assertThat(user).isNotNull();
-        assertThat(user.getEmail()).isEqualTo(validRequest.getEmail());
-        assertThat(user.getPassword()).isEqualTo("encodedPassword");
+        assertThat(response).isNotNull();
+        assertThat(response.getEmail()).isEqualTo(validRequest.getEmail());
+        assertThat(response.getCreatedAt()).isNotNull();
     }
 
     @Test
     @DisplayName("회원가입 실패 - 이메일 중복")
     void registerFail_DuplicateEmail() {
         // Given
-        when(userRepository.findByEmail(duplicateRequest.getEmail()))
-                .thenReturn(Optional.of(new User(duplicateRequest.getEmail(), "encodedPassword")));
+        when(userRepository.existsByEmail(duplicateRequest.getEmail())).thenReturn(true);
 
         // When & Then
         assertThatThrownBy(() -> userService.register(duplicateRequest))

@@ -1,6 +1,7 @@
 package com.soli.frankit.service;
 
-import com.soli.frankit.dto.RegisterRequest;
+import com.soli.frankit.dto.UserRequest;
+import com.soli.frankit.dto.UserResponse;
 import com.soli.frankit.entity.User;
 import com.soli.frankit.exception.CustomException;
 import com.soli.frankit.exception.ErrorCode;
@@ -31,9 +32,9 @@ public class UserService {
      * @return 가입된 사용자 정보
      * @throws CustomException(ErrorCode.EMAIL_ALREADY_EXISTS) 중복 이메일 예외 발생
      */
-    public User register(RegisterRequest request) {
-        // 이메일 중복 검사
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+    public UserResponse register(UserRequest request) {
+        // 이메일 중복 검사 (existsByEmail() 사용하여 최적화)
+        if (userRepository.existsByEmail(request.getEmail())) {
             throw new CustomException(ErrorCode.EMAIL_ALREADY_EXISTS);
         }
 
@@ -46,7 +47,10 @@ public class UserService {
                         .password(encodedPassword)
                         .build();
 
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+
+        // 비밀번호를 제외한 응답 DTO 반환
+        return new UserResponse(savedUser.getEmail(), savedUser.getCreatedAt());
     }
 
 }

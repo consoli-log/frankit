@@ -2,8 +2,8 @@ package com.soli.frankit.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soli.frankit.config.TestSecurityConfig;
-import com.soli.frankit.dto.RegisterRequest;
-import com.soli.frankit.entity.User;
+import com.soli.frankit.dto.UserRequest;
+import com.soli.frankit.dto.UserResponse;
 import com.soli.frankit.exception.CustomException;
 import com.soli.frankit.exception.ErrorCode;
 import com.soli.frankit.service.UserService;
@@ -16,6 +16,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.time.LocalDateTime;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -40,39 +42,39 @@ public class UserControllerTest {
     @MockBean
     private UserService userService;
 
-    private RegisterRequest validRequest;
-    private RegisterRequest invalidRequest;
-    private RegisterRequest duplicateRequest;
+    private UserRequest validRequest;
+    private UserRequest invalidRequest;
+    private UserRequest duplicateRequest;
 
     @BeforeEach
     void setUp() {
-        validRequest = new RegisterRequest("soli@test.com", "solitest1216");
-        invalidRequest = new RegisterRequest("", null);
-        duplicateRequest = new RegisterRequest("duplicate@test.com", "solitest1216");
+        validRequest = new UserRequest("soli@test.com", "solitest1216");
+        invalidRequest = new UserRequest("", null);
+        duplicateRequest = new UserRequest("duplicate@test.com", "solitest1216");
     }
 
     @Test
     @DisplayName("회원가입 성공 (200)")
     void registerSuccess() throws Exception {
         // Given
-        User user = new User(validRequest.getEmail(), "encodedPassword");
-        when(userService.register(any(RegisterRequest.class))).thenReturn(user);
+        UserResponse response = new UserResponse(validRequest.getEmail(), LocalDateTime.now());
+        when(userService.register(any(UserRequest.class))).thenReturn(response);
 
         // When & Then
         mockMvc.perform(post("/api/users/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(validRequest)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated()) // 201 Created
                 .andExpect(jsonPath("$.email").value(validRequest.getEmail()))
-                .andExpect(jsonPath("$.password").value("encodedPassword"));
+                .andExpect(jsonPath("$.createdAt").exists());;
     }
 
     @Test
-    @DisplayName("회원가입 실패 - 이메일 중복 (409)")
+    @DisplayName("회원가입 실패 - 이메일 중복 (409 Conflict)")
     void registerFail_DuplicateEmail() throws Exception {
         // Given
         doThrow(new CustomException(ErrorCode.EMAIL_ALREADY_EXISTS))
-                .when(userService).register(any(RegisterRequest.class));
+                .when(userService).register(any(UserRequest.class));
 
         // When & Then
         mockMvc.perform(post("/api/users/register")
@@ -83,7 +85,7 @@ public class UserControllerTest {
     }
 
     @Test
-    @DisplayName("회원가입 실패 - 유효성 검사 실패 (400)")
+    @DisplayName("회원가입 실패 - 유효성 검사 실패 (400 Bad Request)")
     void registerFail_ValidationError() throws Exception {
         mockMvc.perform(post("/api/users/register")
                         .contentType(MediaType.APPLICATION_JSON)
