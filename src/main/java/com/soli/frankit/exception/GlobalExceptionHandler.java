@@ -30,11 +30,11 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(CustomException.class)
     @ApiResponses({
-            @ApiResponse(responseCode = "400", description = "잘못된 요청 (INVALID_REQUEST)"),
-            @ApiResponse(responseCode = "401", description = "인증 실패 (INVALID_CREDENTIALS, TOKEN_EXPIRED)"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "401", description = "인증 실패"),
             @ApiResponse(responseCode = "403", description = "권한 없음"),
-            @ApiResponse(responseCode = "404", description = "리소스를 찾을 수 없음 (NOT_FOUND)"),
-            @ApiResponse(responseCode = "409", description = "데이터 충돌 (EMAIL_ALREADY_EXISTS)"),
+            @ApiResponse(responseCode = "404", description = "리소스를 찾을 수 없음"),
+            @ApiResponse(responseCode = "409", description = "데이터 충돌"),
             @ApiResponse(responseCode = "500", description = "서버 내부 오류")
     })
     public ResponseEntity<Map<String, Object>> handleCustomException(CustomException e) {
