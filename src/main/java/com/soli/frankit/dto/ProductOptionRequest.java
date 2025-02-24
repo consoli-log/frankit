@@ -1,6 +1,7 @@
 package com.soli.frankit.dto;
 
 import com.soli.frankit.entity.OptionType;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -23,14 +24,19 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Schema(description = "상품 옵션 등록/수정 요청 DTO")
 public class ProductOptionRequest {
 
     @NotBlank(message = "옵션명은 필수 입력값입니다.")
+    @Schema(description = "옵션명", example = "색상 선택")
     private String optionName;
 
     @NotNull(message = "옵션 타입은 필수 입력값입니다.")
+    @Schema(description = "옵션 타입", example = "INPUT 또는 SELECT")
     private OptionType optionType;
 
     @Min(value = 0, message = "옵션 추가 금액은 0원 이상이어야 합니다.")
+    @Schema(description = "옵션 추가 금액 (입력형 옵션만 해당)", example = "5000")
     private BigDecimal optionPrice;
+
 }

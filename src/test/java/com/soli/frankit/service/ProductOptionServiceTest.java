@@ -69,7 +69,12 @@ class ProductOptionServiceTest {
         optionId = 10L;
         invalidId = 999L;
 
-        product = new Product("테스트 상품", "테스트 설명", BigDecimal.valueOf(10000), BigDecimal.valueOf(2000));
+        product = Product.builder()
+                        .name("테스트 상품")
+                        .description("테스트 설명")
+                        .price(BigDecimal.valueOf(10000))
+                        .shippingFee(BigDecimal.valueOf(2000))
+                        .build();
 
         optionInput = ProductOption.builder()
                                     .product(product)
@@ -130,10 +135,10 @@ class ProductOptionServiceTest {
     @DisplayName("옵션 등록 실패 - 상품이 존재하지 않음")
     void createProductOptionFail_ProductNotFound() {
         // Given
-        when(productRepository.findById(invalidId)).thenReturn(Optional.empty());
+        when(productRepository.findById(productId)).thenReturn(Optional.empty());
 
         // When & Then
-        assertThatThrownBy(() -> productOptionService.createProductOption(invalidId, validCreateRequest))
+        assertThatThrownBy(() -> productOptionService.createProductOption(productId, validCreateRequest))
                 .isInstanceOf(CustomException.class)
                 .hasMessageContaining(ErrorCode.PRODUCT_NOT_FOUND.getMessage());
     }
