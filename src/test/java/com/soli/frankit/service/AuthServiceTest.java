@@ -22,7 +22,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 /**
@@ -53,22 +52,28 @@ public class AuthServiceTest {
     private LoginRequest wrongPasswordRequest;
     private LoginRequest emailNotFoundRequest;
 
+    private User mockUser;
+
     @BeforeEach
     void setUp() {
         validRequest = new LoginRequest("soli@test.com", "solitest1216");
         wrongPasswordRequest = new LoginRequest("soli@test.com", "wrongpassword");
         emailNotFoundRequest = new LoginRequest("notfound@test.com", "solitest1216");
+
+        // Mock User 객체 생성 (비밀번호 인코딩 후 저장)
+        mockUser = User.builder()
+                        .email(validRequest.getEmail())
+                        .password("encodedPassword") // 암호화된 비밀번호
+                        .build();
     }
 
     @Test
     @DisplayName("로그인 성공")
     void loginSuccess() {
         // Given
-        User user = new User(validRequest.getEmail(), passwordEncoder.encode(validRequest.getPassword()));
-
-        when(userRepository.findByEmail(validRequest.getEmail())).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches(validRequest.getPassword(), user.getPassword())).thenReturn(true);
-        when(jwtTokenProvider.createToken(any())).thenReturn("JWT_Token");
+        when(userRepository.findByEmail(validRequest.getEmail())).thenReturn(Optional.of(mockUser));
+        when(passwordEncoder.matches(validRequest.getPassword(), mockUser.getPassword())).thenReturn(true);
+        when(jwtTokenProvider.createToken(mockUser.getEmail())).thenReturn("JWT_Token");
 
         // When
         TokenResponse response = authService.login(validRequest);
@@ -82,10 +87,8 @@ public class AuthServiceTest {
     @DisplayName("로그인 실패 - 비밀번호 틀림")
     void loginFail_WrongPassword() {
         // Given
-        User user = new User(validRequest.getEmail(), passwordEncoder.encode("correctpassword"));
-
-        when(userRepository.findByEmail(validRequest.getEmail())).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches(wrongPasswordRequest.getPassword(), user.getPassword())).thenReturn(false);
+        when(userRepository.findByEmail(validRequest.getEmail())).thenReturn(Optional.of(mockUser));
+        when(passwordEncoder.matches(wrongPasswordRequest.getPassword(), mockUser.getPassword())).thenReturn(false);
 
         // When & Then
         assertThatThrownBy(() -> authService.login(wrongPasswordRequest))

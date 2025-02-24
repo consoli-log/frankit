@@ -40,6 +40,8 @@ public class AuthControllerTest {
     @MockBean
     private AuthService authService;
 
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     private LoginRequest validRequest;
     private LoginRequest emailNotFoundRequest;
     private LoginRequest wrongPasswordRequest;
@@ -61,12 +63,12 @@ public class AuthControllerTest {
     @DisplayName("로그인 성공 (200)")
     void loginSuccess() throws Exception {
         // Given
-        when(authService.login(any(LoginRequest.class))).thenReturn(new TokenResponse("JWT_Token"));
+        when(authService.login(eq(validRequest))).thenReturn(new TokenResponse("JWT_Token"));
 
         // When & Then
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(validRequest)))
+                        .content(objectMapper.writeValueAsString(validRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.token").value("JWT_Token"));
     }
@@ -76,12 +78,12 @@ public class AuthControllerTest {
     void loginFail_EmailNotFound() throws Exception {
         // Given
         doThrow(new CustomException(ErrorCode.MEMBER_NOT_FOUND))
-                .when(authService).login(any(LoginRequest.class));
+                .when(authService).login(eq(emailNotFoundRequest));
 
         // When & Then
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(emailNotFoundRequest)))
+                        .content(objectMapper.writeValueAsString(emailNotFoundRequest)))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value(ErrorCode.MEMBER_NOT_FOUND.getMessage()));
     }
@@ -91,12 +93,12 @@ public class AuthControllerTest {
     void loginFail_WrongPassword() throws Exception {
         // Given
         doThrow(new CustomException(ErrorCode.INVALID_CREDENTIALS))
-                .when(authService).login(any(LoginRequest.class));
+                .when(authService).login(eq(wrongPasswordRequest));
 
         // When & Then
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(wrongPasswordRequest)))
+                        .content(objectMapper.writeValueAsString(wrongPasswordRequest)))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.error").value(ErrorCode.INVALID_CREDENTIALS.getMessage()));
     }
@@ -106,7 +108,7 @@ public class AuthControllerTest {
     void loginFail_WrongFormatEmail() throws Exception {
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(wrongFormatEmailRequest)))
+                        .content(objectMapper.writeValueAsString(wrongFormatEmailRequest)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.email").value("올바른 이메일 형식이 아닙니다."));
     }
@@ -116,7 +118,7 @@ public class AuthControllerTest {
     void loginFail_BlankEmail() throws Exception {
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(blankEmailRequest)))
+                        .content(objectMapper.writeValueAsString(blankEmailRequest)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.email").value("이메일은 필수 입력값입니다."));
     }
@@ -126,7 +128,7 @@ public class AuthControllerTest {
     void loginFail_BlankPassword() throws Exception {
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(blankPasswordRequest)))
+                        .content(objectMapper.writeValueAsString(blankPasswordRequest)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.password").value("비밀번호는 필수 입력값입니다."));
     }

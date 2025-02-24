@@ -1,5 +1,6 @@
 package com.soli.frankit.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -13,6 +14,9 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class TokenResponse {
+
+    @Schema(description = "발급된 JWT 토큰", example = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzb2xpQHRlc3QuY29tIiwiaWF0IjoxNzQwMjI3MTU1LCJleHAiOjE3NDAzMTM1NTV9.he0ETX2SF6s7BRJD_aV3tNegvIopXEa6XXoeJpPVRc4")
     private final String token;
+
 }
 
