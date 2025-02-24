@@ -53,6 +53,10 @@ class ProductOptionControllerTest {
     private ProductOptionRequest validUpdateRequest;
     private ProductOptionRequest changedTypeRequest;
 
+    private ProductOptionRequest blankNameRequest;
+    private ProductOptionRequest blankTypeRequest;
+    private ProductOptionRequest negativePriceRequest;
+
     private ProductOptionResponse validCreateResponse;
     private ProductOptionResponse validUpdateResponse;
     private ProductOptionResponse changedTypeResponse;
@@ -66,6 +70,10 @@ class ProductOptionControllerTest {
         validCreateRequest = new ProductOptionRequest("테스트 옵션", OptionType.INPUT, BigDecimal.valueOf(2000));
         validUpdateRequest = new ProductOptionRequest("수정된 옵션", OptionType.INPUT, BigDecimal.valueOf(1500));
         changedTypeRequest = new ProductOptionRequest("변경된 옵션", OptionType.SELECT, null);
+
+        blankNameRequest = new ProductOptionRequest("", OptionType.INPUT, BigDecimal.valueOf(2000));
+        blankTypeRequest = new ProductOptionRequest("테스트 옵션", null , BigDecimal.valueOf(2000));
+        negativePriceRequest = new ProductOptionRequest("테스트 옵션", OptionType.INPUT, BigDecimal.valueOf(-2000));
 
         validCreateResponse = ProductOptionResponse.builder()
                                                     .id(optionId)
@@ -93,7 +101,7 @@ class ProductOptionControllerTest {
     }
 
     @Test
-    @DisplayName("옵션 등록 성공")
+    @DisplayName("옵션 등록 성공 (200)")
     void createProductOptionSuccess() throws Exception {
         // Given
         when(productOptionService.createProductOption(any(), any())).thenReturn(validCreateResponse);
@@ -107,6 +115,26 @@ class ProductOptionControllerTest {
                 .andExpect(jsonPath("$.optionName").value(validCreateRequest.getOptionName()));
 
         verify(productOptionService, times(1)).createProductOption(any(), any());
+    }
+
+    @Test
+    @DisplayName("옵션 등록 실패 - 옵션명 공백 (400)")
+    void createProductOptionFail_BlankName() throws Exception {
+        mockMvc.perform(post("/api/product-options/products/{productId}", productId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(blankNameRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.optionName").value("옵션명은 필수 입력값입니다."));
+    }
+
+    @Test
+    @DisplayName("옵션 등록 실패 - 옵션 추가 금액이 음수 (400)")
+    void createProductOptionFail_NegativePrice() throws Exception {
+        mockMvc.perform(post("/api/product-options/products/{productId}", productId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(negativePriceRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.optionPrice").value("옵션 추가 금액은 0원 이상이어야 합니다."));
     }
 
     @Test
@@ -124,7 +152,7 @@ class ProductOptionControllerTest {
     }
 
     @Test
-    @DisplayName("옵션 등록 실패 - 존재하지 않는 상품 (404)")
+    @DisplayName("옵션 등록 실패 - 상품이 존재하지 않음 (404)")
     void createProductOptionFail_ProductNotFound() throws Exception {
         // Given
         when(productOptionService.createProductOption(any(), any()))
@@ -169,6 +197,26 @@ class ProductOptionControllerTest {
                 .andExpect(jsonPath("$.optionType").value(OptionType.SELECT.name()))
                 .andExpect(jsonPath("$.optionPrice").doesNotExist())
                 .andExpect(jsonPath("$.optionPrice").value(Matchers.nullValue()));
+    }
+
+    @Test
+    @DisplayName("옵션 수정 실패 - 옵션 타입 공백 (400)")
+    void updateProductOptionFail_BlankType() throws Exception {
+        mockMvc.perform(put("/api/product-options/{optionId}", optionId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(blankTypeRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.optionType").value("옵션 타입은 필수 입력값입니다."));
+    }
+
+    @Test
+    @DisplayName("옵션 수정 실패 - 옵션 추가 금액이 음수 (400)")
+    void updateProductOptionFail_NegativePrice() throws Exception {
+        mockMvc.perform(put("/api/product-options/{optionId}", optionId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(negativePriceRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.optionPrice").value("옵션 추가 금액은 0원 이상이어야 합니다."));
     }
 
     @Test

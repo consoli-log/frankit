@@ -127,7 +127,7 @@ class ProductOptionServiceTest {
     }
 
     @Test
-    @DisplayName("옵션 등록 실패 - 존재하지 않는 상품")
+    @DisplayName("옵션 등록 실패 - 상품이 존재하지 않음")
     void createProductOptionFail_ProductNotFound() {
         // Given
         when(productRepository.findById(invalidId)).thenReturn(Optional.empty());
@@ -180,7 +180,8 @@ class ProductOptionServiceTest {
         when(productOptionRepository.findById(optionId)).thenReturn(Optional.of(optionInput));
 
         // When & Then
-        assertThatThrownBy(() -> productOptionService.updateProductOption(optionId, validUpdateRequest)).isInstanceOf(CustomException.class)
+        assertThatThrownBy(() -> productOptionService.updateProductOption(optionId, validUpdateRequest))
+                .isInstanceOf(CustomException.class)
                 .hasMessageContaining(ErrorCode.OPTION_CANNOT_BE_UPDATED.getMessage());
     }
 
@@ -191,7 +192,8 @@ class ProductOptionServiceTest {
         when(productOptionRepository.findById(invalidId)).thenReturn(Optional.empty());
 
         // When & Then
-        assertThatThrownBy(() -> productOptionService.updateProductOption(invalidId, validUpdateRequest)).isInstanceOf(CustomException.class)
+        assertThatThrownBy(() -> productOptionService.updateProductOption(invalidId, validUpdateRequest))
+                .isInstanceOf(CustomException.class)
                 .hasMessageContaining(ErrorCode.OPTION_NOT_FOUND.getMessage());
     }
 
@@ -217,7 +219,8 @@ class ProductOptionServiceTest {
         when(orderService.hasOptionOrders(optionId)).thenReturn(true);
 
         // When & Then
-        assertThatThrownBy(() -> productOptionService.deleteProductOption(optionId)).isInstanceOf(CustomException.class)
+        assertThatThrownBy(() -> productOptionService.deleteProductOption(optionId))
+                .isInstanceOf(CustomException.class)
                 .hasMessageContaining(ErrorCode.OPTION_CANNOT_BE_DELETED.getMessage());
     }
 
@@ -228,7 +231,8 @@ class ProductOptionServiceTest {
         when(productOptionRepository.findById(invalidId)).thenReturn(Optional.empty());
 
         // When & Then
-        assertThatThrownBy(() -> productOptionService.deleteProductOption(invalidId)).isInstanceOf(CustomException.class)
+        assertThatThrownBy(() -> productOptionService.deleteProductOption(invalidId))
+                .isInstanceOf(CustomException.class)
                 .hasMessageContaining(ErrorCode.OPTION_NOT_FOUND.getMessage());
     }
 
@@ -265,7 +269,8 @@ class ProductOptionServiceTest {
         when(productOptionRepository.findById(invalidId)).thenReturn(Optional.empty());
 
         // When & Then
-        assertThatThrownBy(() -> productOptionService.activateOption(invalidId)).isInstanceOf(CustomException.class)
+        assertThatThrownBy(() -> productOptionService.activateOption(invalidId))
+                .isInstanceOf(CustomException.class)
                 .hasMessageContaining(ErrorCode.OPTION_NOT_FOUND.getMessage());
     }
 
