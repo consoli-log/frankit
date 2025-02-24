@@ -250,7 +250,8 @@ class OptionDetailServiceTest {
     @DisplayName("특정 옵션의 모든 상세 옵션 조회 성공 - 옵션이 있는 경우")
     void getAllDetailsByOptionSuccess() {
         // Given
-        when(optionDetailRepository.findByProductOptionId(optionId)).thenReturn(List.of(validDetail, inactiveDetail));
+        when(productOptionRepository.findById(optionId)).thenReturn(Optional.of(productOption));
+        when(optionDetailRepository.findByProductOption(productOption)).thenReturn(List.of(validDetail, inactiveDetail));
 
         // When
         List<OptionDetailResponse> details = optionDetailService.getAllDetailsByOption(optionId);
@@ -263,7 +264,8 @@ class OptionDetailServiceTest {
     @DisplayName("특정 옵션의 모든 상세 옵션 조회 성공 - 옵션이 없는 경우")
     void getAllDetailsByOptionSuccess_Empty() {
         // Given
-        when(optionDetailRepository.findByProductOptionId(optionId)).thenReturn(List.of());
+        when(productOptionRepository.findById(optionId)).thenReturn(Optional.of(productOption));
+        when(optionDetailRepository.findByProductOption(productOption)).thenReturn(List.of());
 
         // When
         List<OptionDetailResponse> details = optionDetailService.getAllDetailsByOption(optionId);
@@ -276,7 +278,8 @@ class OptionDetailServiceTest {
     @DisplayName("특정 옵션의 활성화된 상세 옵션 조회 성공 - 활성화된 옵션이 있는 경우")
     void getActiveDetailsByOptionSuccess() {
         // Given
-        when(optionDetailRepository.findByProductOptionIdAndIsActiveTrue(optionId)).thenReturn(List.of(validDetail));
+        when(productOptionRepository.findById(optionId)).thenReturn(Optional.of(productOption));
+        when(optionDetailRepository.findByProductOptionAndIsActiveTrue(productOption)).thenReturn(List.of(validDetail));
 
         // When
         List<OptionDetailResponse> activeDetails = optionDetailService.getActiveDetailsByOption(optionId);
@@ -289,7 +292,8 @@ class OptionDetailServiceTest {
     @DisplayName("특정 옵션의 활성화된 상세 옵션 조회 성공 - 활성화된 옵션이 없는 경우")
     void getActiveDetailsByOptionSuccess_Empty() {
         // Given
-        when(optionDetailRepository.findByProductOptionIdAndIsActiveTrue(optionId)).thenReturn(List.of());
+        when(productOptionRepository.findById(optionId)).thenReturn(Optional.of(productOption));
+        when(optionDetailRepository.findByProductOptionAndIsActiveTrue(productOption)).thenReturn(List.of());
 
         // When
         List<OptionDetailResponse> activeDetails = optionDetailService.getActiveDetailsByOption(optionId);

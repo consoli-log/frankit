@@ -1,6 +1,7 @@
 package com.soli.frankit.repository;
 
 import com.soli.frankit.entity.OptionDetail;
+import com.soli.frankit.entity.ProductOption;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -19,26 +20,17 @@ public interface OptionDetailRepository extends JpaRepository<OptionDetail, Long
     /**
      * 특정 옵션의 모든 상세 옵션 조회
      *
-     * @param optionId 옵션 ID
+     * @param productOption 옵션
      * @return 옵션에 속한 상세 옵션 목록
      */
-    List<OptionDetail> findByProductOptionId(Long optionId);
-
-    /**
-     * 특정 옵션의 활성화된 상세 옵션 개수 조회
-     *
-     * @param optionId 옵션 ID
-     * @param isActive 옵션 활성화 여부
-     * @return 활성화된 상세 옵션 개수
-     */
-    long countByOptionIdAndIsActive(Long optionId, boolean isActive);
+    List<OptionDetail> findByProductOption(ProductOption productOption);
 
     /**
      * 특정 옵션의 활성화된 상세 옵션 목록 조회
      *
-     * @param optionId 옵션 ID
+     * @param productOption 특정 옵션
      * @return 활성화된 상세 옵션 목록
      */
-    List<OptionDetail> findByProductOptionIdAndIsActiveTrue(Long optionId);
+    List<OptionDetail> findByProductOptionAndIsActiveTrue(ProductOption productOption);
 
 }

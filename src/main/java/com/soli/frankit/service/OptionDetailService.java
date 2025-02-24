@@ -144,7 +144,10 @@ public class OptionDetailService {
      */
     @Transactional(readOnly = true)
     public List<OptionDetailResponse> getAllDetailsByOption(Long optionId) {
-        List<OptionDetail> details = optionDetailRepository.findByProductOptionId(optionId);
+        ProductOption productOption = productOptionRepository.findById(optionId)
+                .orElseThrow(() -> new CustomException(ErrorCode.OPTION_NOT_FOUND));
+
+        List<OptionDetail> details = optionDetailRepository.findByProductOption(productOption);
         log.info("옵션의 모든 상세 옵션 조회 - optionId: {}, detailsCount: {}", optionId, details.size());
 
         return details.stream().map(this::convertToResponseDto).collect(Collectors.toList());
@@ -158,7 +161,10 @@ public class OptionDetailService {
      */
     @Transactional(readOnly = true)
     public List<OptionDetailResponse> getActiveDetailsByOption(Long optionId) {
-        List<OptionDetail> activeDetails = optionDetailRepository.findByProductOptionIdAndIsActiveTrue(optionId);
+        ProductOption productOption = productOptionRepository.findById(optionId)
+                .orElseThrow(() -> new CustomException(ErrorCode.OPTION_NOT_FOUND));
+
+        List<OptionDetail> activeDetails = optionDetailRepository.findByProductOptionAndIsActiveTrue(productOption);
 
         if (activeDetails.isEmpty()) {
             log.warn("옵션의 활성화된 상세 옵션이 없습니다 - optionId: {}", optionId);
