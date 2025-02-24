@@ -40,20 +40,20 @@ public class ProductOption {
     @JoinColumn(name = "product_seq", nullable = false)
     private Product product; // 연결된 상품
 
-    @Column(nullable = false)
+    @Column(name = "option_name", nullable = false)
     private String optionName; // 옵션 이름
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "option_type", nullable = false)
     private OptionType optionType; // 옵션 타입
 
-    @Column(precision = 10, scale = 2)
+    @Column(name = "option_price", precision = 10, scale = 2)
     private BigDecimal optionPrice; // 옵션 추가 금액 (입력형)
 
     @OneToMany(mappedBy = "productOption", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OptionDetail> optionDetails = new ArrayList<>();  // 상세 옵션 (선택형)
 
-    @Column(nullable = false)
+    @Column(name = "is_active", nullable = false)
     private boolean isActive = true; // 옵션 활성화 여부 (기본값 true)
 
     @CreationTimestamp

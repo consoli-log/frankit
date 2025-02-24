@@ -45,7 +45,7 @@ public class Product {
     @Column(name = "shipping_fee", nullable = false)
     private BigDecimal shippingFee; // 배송비
 
-    @Column(nullable = false)
+    @Column(name = "is_active", nullable = false)
     private boolean isActive = true; // 상품 활성화 여부 (기본값 true)
 
     @CreationTimestamp

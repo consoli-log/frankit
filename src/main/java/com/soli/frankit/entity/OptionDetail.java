@@ -38,13 +38,13 @@ public class OptionDetail {
     @JoinColumn(name = "option_seq", nullable = false)
     private ProductOption productOption; // 연결된 상품 옵션
 
-    @Column(nullable = false)
+    @Column(name = "detail_name",nullable = false)
     private String detailName; // 상세 옵션 이름
 
-    @Column(nullable = false, precision = 10, scale = 2)
+    @Column(name = "detail_price",nullable = false, precision = 10, scale = 2)
     private BigDecimal detailPrice; // 상세 옵션 추가 금액
 
-    @Column(nullable = false)
+    @Column(name = "is_active",nullable = false)
     private boolean isActive = true; // 활성화 여부 (기본값 true)
 
     @CreationTimestamp
