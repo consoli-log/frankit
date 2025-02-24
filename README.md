@@ -95,6 +95,8 @@ Swagger API 문서를 통해 API 명세를 확인할 수 있습니다.
 - Service, Controller 단위 테스트 포함
 - 주요 비즈니스 로직 및 예외 처리 검증 완료
 
+---
+
 ## 8. 프로젝트 디렉토리 구조 
 ```plaintext
 com.soli.frankit  
