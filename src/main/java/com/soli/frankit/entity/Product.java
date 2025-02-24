@@ -115,7 +115,7 @@ public class Product {
      */
     public boolean isDeletable(boolean hasOrder) {
         boolean deletable = !hasOrder;
-        log.info("상품 삭제 가능 여부 확인 - hasOrder: {}, deletable: {}", hasOrder, deletable);
+        log.info("상품 삭제 가능 여부 확인 - 주문 여부: {}, 삭제 가능 여부: {}", hasOrder, deletable);
         return deletable;
     }
 

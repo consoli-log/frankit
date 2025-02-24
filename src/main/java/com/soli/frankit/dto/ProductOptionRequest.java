@@ -24,7 +24,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "상품 옵션 등록/수정 요청 DTO")
+@Schema(description = "상품 옵션 등록 및 수정 요청 DTO")
 public class ProductOptionRequest {
 
     @NotBlank(message = "옵션명은 필수 입력값입니다.")

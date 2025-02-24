@@ -137,7 +137,7 @@ public class ProductOption {
      */
     public boolean isUpdatable(boolean hasOptionOrder) {
         boolean updatable = !hasOptionOrder;
-        log.info("옵션 수정 가능 여부 확인 - hasOptionOrder: {}, updatable: {}", hasOptionOrder, updatable);
+        log.info("옵션 수정 가능 여부 확인 - 주문 여부: {}, 수정 가능 여부: {}", hasOptionOrder, updatable);
         return updatable;
     }
 
@@ -151,7 +151,7 @@ public class ProductOption {
      */
     public boolean isDeletable(boolean hasOptionOrder) {
         boolean deletable = !hasOptionOrder;
-        log.info("옵션 삭제 가능 여부 확인 - hasOptionOrder: {}, deletable: {}", hasOptionOrder, deletable);
+        log.info("옵션 삭제 가능 여부 확인 - 주문 여부: {}, 삭제 가능 여부: {}", hasOptionOrder, deletable);
         return deletable;
     }
 

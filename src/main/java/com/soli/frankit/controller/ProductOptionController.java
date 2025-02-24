@@ -66,7 +66,7 @@ public class ProductOptionController {
             @ApiResponse(responseCode = "200", description = "상품 옵션 수정 성공"),
             @ApiResponse(responseCode = "400", description = "입력값 검증 실패"),
             @ApiResponse(responseCode = "404", description = "상품 옵션을 찾을 수 없음"),
-            @ApiResponse(responseCode = "409", description = "주문된 옵션은 수정 불가"),
+            @ApiResponse(responseCode = "409", description = "수정할 수 없는 옵션"),
             @ApiResponse(responseCode = "500", description = "서버 내부 오류")
     })
     public ResponseEntity<ProductOptionResponse> updateProductOption(
