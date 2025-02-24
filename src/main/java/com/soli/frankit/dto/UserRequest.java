@@ -20,6 +20,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "회원가입 요청 DTO")
 public class UserRequest {
 
     @Schema(description = "사용자 이메일", example = "soli@email.com")

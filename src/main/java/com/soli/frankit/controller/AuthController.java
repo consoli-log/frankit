@@ -44,12 +44,9 @@ public class AuthController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "로그인 성공",
                     content = @Content(schema = @Schema(implementation = TokenResponse.class))),
-            @ApiResponse(responseCode = "400", description = "입력값 검증 실패 (이메일 형식, 비밀번호 필수 입력)",
-                    content = @Content),
-            @ApiResponse(responseCode = "401", description = "잘못된 자격 증명 (INVALID_CREDENTIALS)",
-                    content = @Content(schema = @Schema(example = "{ \"error\": \"이메일 또는 비밀번호가 올바르지 않습니다.\" }"))),
-            @ApiResponse(responseCode = "404", description = "사용자 없음 (MEMBER_NOT_FOUND)",
-                    content = @Content(schema = @Schema(example = "{ \"error\": \"회원을 찾을 수 없습니다.\" }"))),
+            @ApiResponse(responseCode = "400", description = "입력값 검증 실패"),
+            @ApiResponse(responseCode = "401", description = "잘못된 자격 증명"),
+            @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음"),
             @ApiResponse(responseCode = "500", description = "서버 내부 오류")
     })
     public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest request) {

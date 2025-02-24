@@ -12,11 +12,12 @@ import java.time.LocalDateTime;
  * fileName     UserResponse
  * author       eumsoli
  * date         2025-02-24
- * description  회원가입 완료 후 응답 DTO (비밀번호 제외)
+ * description  회원가입 응답 DTO
  */
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "회원가입 응답 DTO")
 public class UserResponse {
 
     @Schema(description = "사용자 이메일", example = "soli@email.com")

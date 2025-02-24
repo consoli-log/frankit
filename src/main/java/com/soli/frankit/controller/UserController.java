@@ -42,8 +42,8 @@ public class UserController {
     @Operation(summary = "회원가입", description = "이메일과 비밀번호를 입력하여 회원가입을 수행합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "회원가입 성공"),
-            @ApiResponse(responseCode = "400", description = "입력값 검증 실패 (이메일 형식, 비밀번호 길이 등)"),
-            @ApiResponse(responseCode = "409", description = "이미 존재하는 이메일 (EMAIL_ALREADY_EXISTS)"),
+            @ApiResponse(responseCode = "400", description = "입력값 검증 실패"),
+            @ApiResponse(responseCode = "409", description = "이미 존재하는 이메일"),
             @ApiResponse(responseCode = "500", description = "서버 내부 오류")
     })
     public ResponseEntity<UserResponse> register(@Valid @RequestBody UserRequest request) {

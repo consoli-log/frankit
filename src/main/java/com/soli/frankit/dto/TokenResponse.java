@@ -13,6 +13,7 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
+@Schema(description = "로그인 시 반환할 JWT 토큰 응답 DTO")
 public class TokenResponse {
 
     @Schema(description = "발급된 JWT 토큰", example = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzb2xpQHRlc3QuY29tIiwiaWF0IjoxNzQwMjI3MTU1LCJleHAiOjE3NDAzMTM1NTV9.he0ETX2SF6s7BRJD_aV3tNegvIopXEa6XXoeJpPVRc4")
