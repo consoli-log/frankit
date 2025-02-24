@@ -36,8 +36,9 @@ git clone https://github.com/consoli-log/frankit.git
 cd frankit
 ```
 ### 2) 환경 설정  
-프로젝트에 제공된 `.env.example` 파일을 `.env`로 복사한 후, 환경 변수 값을 설정하세요.
+프로젝트에 제공된 `.env.example` 파일을 `.env`로 복사한 후, 환경 변수 값을 설정하세요.  
 그 후 .env 파일을 열어 DB 정보 및 JWT Secret Key를 수정하세요.
+
 
 ```ini
 # Database Configuration
@@ -49,7 +50,9 @@ DB_PASSWORD=your_database_password
 # JWT Secret Key 
 JWT_SECRET=your_jwt_secret_key
 ```
-주의: .env 파일은 보안상 .gitignore에 추가되어 있어야 합니다.
+
+주의: `.env` 파일은 보안상 `.gitignore`에 추가되어 있어야 합니다.
+
 ---
 
 ## 4. 데이터베이스 설정  
@@ -67,7 +70,7 @@ mysql -u root -p < init.sql
 ```sh
 mysql -u frankit -p frankit < schema.sql
 ```
-실행 후, users, products, options, option_details 테이블이 생성됩니다.
+실행 후, `users`, `products`, `product_options`, `option_details` 테이블이 생성됩니다.
 
 ---
 
@@ -79,7 +82,7 @@ DB 설정이 완료되었으면, 애플리케이션을 실행하세요.
 ---
 
 ## 6. API 문서 
-Swagger API 문서를 통해 API 명세를 확인할 수 있습니다.
+Swagger API 문서를 통해 API 명세를 확인할 수 있습니다.  
 **[Swagger UI 바로가기](http://localhost:8080/swagger-ui/index.html)**
 
 ---
@@ -93,14 +96,14 @@ Swagger API 문서를 통해 API 명세를 확인할 수 있습니다.
 - 주요 비즈니스 로직 및 예외 처리 검증 완료
 
 ## 8. 프로젝트 디렉토리 구조 
-
-com.soli.frankit
- ┣ 📂 config            # 설정 관련 파일
- ┣ 📂 controller        # API 컨트롤러
- ┣ 📂 domain            # 엔티티 및 JPA 매핑
- ┣ 📂 dto               # 요청/응답 DTO
- ┣ 📂 repository        # JPA Repository
- ┣ 📂 service           # 비즈니스 로직
- ┣ 📂 exception         # 커스텀 예외 처리
- ┗ 📂 util              # 유틸리티 클래스
-
+```plaintext
+com.soli.frankit  
+ ┣ 📂 config            # 설정 관련 파일  
+ ┣ 📂 controller        # API 컨트롤러  
+ ┣ 📂 domain            # 엔티티 및 JPA 매핑  
+ ┣ 📂 dto               # 요청/응답 DTO  
+ ┣ 📂 repository        # JPA Repository  
+ ┣ 📂 service           # 비즈니스 로직  
+ ┣ 📂 exception         # 커스텀 예외 처리  
+ ┗ 📂 util              # 유틸리티 클래스  
+```
