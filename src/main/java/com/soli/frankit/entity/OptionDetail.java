@@ -3,7 +3,10 @@ package com.soli.frankit.entity;
 import com.soli.frankit.exception.CustomException;
 import com.soli.frankit.exception.ErrorCode;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -32,13 +35,13 @@ public class OptionDetail {
     private Long id; // 상세 옵션 ID
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "option_seq")
+    @JoinColumn(name = "option_seq", nullable = false)
     private ProductOption productOption; // 연결된 상품 옵션
 
     @Column(nullable = false)
     private String detailName; // 상세 옵션 이름
 
-    @Column(nullable = false)
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal detailPrice; // 상세 옵션 추가 금액
 
     @Column(nullable = false)
@@ -101,19 +104,6 @@ public class OptionDetail {
     }
 
     /**
-     * 상세 옵션 삭제 가능 여부 확인
-     * 1. 주문되지 않은 옵션만 삭제 가능
-     *
-     * @param hasDetailOrder 상세 옵션 주문 여부
-     * @return 삭제 가능 여부 (true: 삭제 가능, false: 삭제 불가)
-     */
-    public boolean isDeletable(boolean hasDetailOrder) {
-        boolean deletable = !hasDetailOrder;
-        log.info("상세 옵션 삭제 가능 여부 확인 - hasDetailOrder: {}, deletable: {}", hasDetailOrder, deletable);
-        return deletable;
-    }
-
-    /**
      * 상세 옵션 수정 가능 여부 확인
      * 1. 주문되지 않은 상세 옵션만 수정 가능
      *
@@ -124,6 +114,19 @@ public class OptionDetail {
         boolean updatable = !hasDetailOrder;
         log.info("상세 옵션 수정 가능 여부 확인 - hasDetailOrder: {}, updatable: {}", hasDetailOrder, updatable);
         return updatable;
+    }
+
+    /**
+     * 상세 옵션 삭제 가능 여부 확인
+     * 1. 주문되지 않은 옵션만 삭제 가능
+     *
+     * @param hasDetailOrder 상세 옵션 주문 여부
+     * @return 삭제 가능 여부 (true: 삭제 가능, false: 삭제 불가)
+     */
+    public boolean isDeletable(boolean hasDetailOrder) {
+        boolean deletable = !hasDetailOrder;
+        log.info("상세 옵션 삭제 가능 여부 확인 - hasDetailOrder: {}, deletable: {}", hasDetailOrder, deletable);
+        return deletable;
     }
 
 }

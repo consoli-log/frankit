@@ -39,6 +39,8 @@ public class OptionDetailResponse {
                 .detailName(detail.getDetailName())
                 .detailPrice(detail.getDetailPrice())
                 .isActive(detail.isActive())
+                .createdAt(detail.getCreatedAt())
+                .updatedAt(detail.getUpdatedAt())
                 .build();
     }
 

@@ -28,7 +28,7 @@ public class OptionDetailRequest {
     private String detailName;
 
     @NotNull(message = "상세 옵션 추가 금액은 필수 입력값입니다.")
-    @Min(value = 0, message = "상세 옵션 추가 금액은 0 이상이어야 합니다.")
+    @Min(value = 0, message = "상세 옵션 추가 금액은 0원 이상이어야 합니다.")
     private BigDecimal detailPrice;
 
 }
