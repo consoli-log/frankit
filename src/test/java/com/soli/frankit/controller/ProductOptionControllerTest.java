@@ -220,7 +220,7 @@ class ProductOptionControllerTest {
     }
 
     @Test
-    @DisplayName("옵션 수정 실패 - 주문된 옵션 (400)")
+    @DisplayName("옵션 수정 실패 - 주문된 옵션 (409)")
     void updateProductOptionFail_HasOptionOrders() throws Exception {
         // Given
         when(productOptionService.updateProductOption(any(), any()))
@@ -230,7 +230,7 @@ class ProductOptionControllerTest {
         mockMvc.perform(put("/api/product-options/{optionId}", optionId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(validUpdateRequest)))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.error").value(ErrorCode.OPTION_CANNOT_BE_UPDATED.getMessage()));
     }
 
@@ -259,7 +259,7 @@ class ProductOptionControllerTest {
     }
 
     @Test
-    @DisplayName("옵션 삭제 실패 - 주문된 옵션 (400)")
+    @DisplayName("옵션 삭제 실패 - 주문된 옵션 (409)")
     void deleteProductOptionFail_HasOptionOrders() throws Exception {
         // Given
         doThrow(new CustomException(ErrorCode.OPTION_CANNOT_BE_DELETED))
@@ -267,7 +267,7 @@ class ProductOptionControllerTest {
 
         // When & Then
         mockMvc.perform(delete("/api/product-options/{optionId}", optionId))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.error").value(ErrorCode.OPTION_CANNOT_BE_DELETED.getMessage()));
     }
 

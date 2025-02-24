@@ -246,7 +246,7 @@ class ProductControllerTest {
     }
 
     @Test
-    @DisplayName("상품 삭제 실패 - 주문된 상품 (400)")
+    @DisplayName("상품 삭제 실패 - 주문된 상품 (409)")
     void deleteProductFail_ActiveProductWithOrder() throws Exception {
         // Given
         doThrow(new CustomException(ErrorCode.PRODUCT_CANNOT_BE_DELETED))
@@ -254,7 +254,7 @@ class ProductControllerTest {
 
         // When & Then
         mockMvc.perform(delete("/api/products/{id}", validId))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.error").value(ErrorCode.PRODUCT_CANNOT_BE_DELETED.getMessage()));
     }
 

@@ -30,20 +30,20 @@ public enum ErrorCode {
 
     // 상품 관련 예외
     PRODUCT_NOT_FOUND(NOT_FOUND, "상품을 찾을 수 없습니다."),
-    PRODUCT_CANNOT_BE_DELETED(BAD_REQUEST, "이미 주문된 상품은 삭제할 수 없습니다."),
+    PRODUCT_CANNOT_BE_DELETED(CONFLICT, "이미 주문된 상품은 삭제할 수 없습니다."),
     PRODUCT_ALREADY_ACTIVE(BAD_REQUEST, "이미 활성화된 상품입니다."),
 
     // 상품 옵션 관련 예외
     OPTION_NOT_FOUND(NOT_FOUND, "상품 옵션을 찾을 수 없습니다."),
-    OPTION_CANNOT_BE_UPDATED(BAD_REQUEST, "이 옵션은 수정할 수 없습니다."),
-    OPTION_CANNOT_BE_DELETED(BAD_REQUEST, "이 옵션은 삭제할 수 없습니다."),
+    OPTION_CANNOT_BE_UPDATED(CONFLICT, "이 옵션은 수정할 수 없습니다."),
+    OPTION_CANNOT_BE_DELETED(CONFLICT, "이 옵션은 삭제할 수 없습니다."),
     OPTION_CANNOT_BE_ACTIVATED(BAD_REQUEST, "비활성화된 옵션을 활성화할 수 없습니다."), // 비활성화된 옵션이 특정 조건(예: 최대 개수 초과)으로 인해 활성화 불가능
     OPTION_LIMIT_EXCEEDED(BAD_REQUEST, "활성화된 옵션 개수는 최대 3개까지 추가할 수 있습니다."),
 
     // 상품 상세 옵션 관련 예외
     OPTION_DETAIL_NOT_FOUND(NOT_FOUND, "상품 상세 옵션을 찾을 수 없습니다."),
-    OPTION_DETAIL_CANNOT_BE_UPDATED(BAD_REQUEST, "이 상세 옵션은 수정할 수 없습니다."),
-    OPTION_DETAIL_CANNOT_BE_DELETED(BAD_REQUEST, "이 상세 옵션은 삭제할 수 없습니다."),
+    OPTION_DETAIL_CANNOT_BE_UPDATED(CONFLICT, "이 상세 옵션은 수정할 수 없습니다."),
+    OPTION_DETAIL_CANNOT_BE_DELETED(CONFLICT, "이 상세 옵션은 삭제할 수 없습니다."),
     OPTION_DETAIL_CANNOT_BE_ACTIVATED(BAD_REQUEST, "비활성화된 옵션의 상세 옵션은 활성화할 수 없습니다."),
 
     // 기타 예외

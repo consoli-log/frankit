@@ -87,7 +87,7 @@ public class ProductOptionController {
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "상품 옵션 삭제 성공"),
             @ApiResponse(responseCode = "404", description = "상품 옵션을 찾을 수 없음"),
-            @ApiResponse(responseCode = "400", description = "삭제할 수 없는 옵션"),
+            @ApiResponse(responseCode = "409", description = "삭제할 수 없는 옵션"),
             @ApiResponse(responseCode = "500", description = "서버 내부 오류")
     })
     public ResponseEntity<Void> deleteProductOption(

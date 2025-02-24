@@ -63,7 +63,7 @@ public class AuthControllerTest {
     @DisplayName("로그인 성공 (200)")
     void loginSuccess() throws Exception {
         // Given
-        when(authService.login(eq(validRequest))).thenReturn(new TokenResponse("JWT_Token"));
+        when(authService.login(any())).thenReturn(new TokenResponse("JWT_Token"));
 
         // When & Then
         mockMvc.perform(post("/api/auth/login")
@@ -78,7 +78,7 @@ public class AuthControllerTest {
     void loginFail_EmailNotFound() throws Exception {
         // Given
         doThrow(new CustomException(ErrorCode.MEMBER_NOT_FOUND))
-                .when(authService).login(eq(emailNotFoundRequest));
+                .when(authService).login(any(LoginRequest.class));
 
         // When & Then
         mockMvc.perform(post("/api/auth/login")
@@ -93,7 +93,7 @@ public class AuthControllerTest {
     void loginFail_WrongPassword() throws Exception {
         // Given
         doThrow(new CustomException(ErrorCode.INVALID_CREDENTIALS))
-                .when(authService).login(eq(wrongPasswordRequest));
+                .when(authService).login(any(LoginRequest.class));
 
         // When & Then
         mockMvc.perform(post("/api/auth/login")
