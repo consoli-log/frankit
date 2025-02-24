@@ -4,7 +4,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -18,13 +20,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * description  BCryptPasswordEncoder 암호화 테스트
  */
 
-@SpringBootTest
-@Import(TestEnvConfig.class)
+@SpringBootTest(classes = PasswordEncoderTest.TestConfig.class) // 별도 설정만 로드
 public class PasswordEncoderTest {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @TestConfiguration
+    static class TestConfig {
+        @Bean
+        public PasswordEncoder passwordEncoder() {
+            return new BCryptPasswordEncoder();
+        }
+    }
     @Test
     @DisplayName("비밀번호 암호화")
     void encodedPassword() {
