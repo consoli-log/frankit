@@ -112,7 +112,7 @@ public class OptionDetail {
      */
     public boolean isUpdatable(boolean hasDetailOrder) {
         boolean updatable = !hasDetailOrder;
-        log.info("상세 옵션 수정 가능 여부 확인 - hasDetailOrder: {}, updatable: {}", hasDetailOrder, updatable);
+        log.info("상세 옵션 수정 가능 여부 확인 - 주문 여부: {}, 수정 가능 여부: {}", hasDetailOrder, updatable);
         return updatable;
     }
 
@@ -125,7 +125,7 @@ public class OptionDetail {
      */
     public boolean isDeletable(boolean hasDetailOrder) {
         boolean deletable = !hasDetailOrder;
-        log.info("상세 옵션 삭제 가능 여부 확인 - hasDetailOrder: {}, deletable: {}", hasDetailOrder, deletable);
+        log.info("상세 옵션 삭제 가능 여부 확인 - 주문 여부: {}, 삭제 가능 여부: {}", hasDetailOrder, deletable);
         return deletable;
     }
 

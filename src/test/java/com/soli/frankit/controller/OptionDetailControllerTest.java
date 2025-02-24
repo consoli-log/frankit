@@ -160,7 +160,7 @@ class OptionDetailControllerTest {
     }
 
     @Test
-    @DisplayName("상세 옵션 수정 실패 - 주문된 상세 옵션 (400)")
+    @DisplayName("상세 옵션 수정 실패 - 주문된 상세 옵션 (409)")
     void updateOptionDetailFail_HasDetailOrders() throws Exception {
         // Given
         when(optionDetailService.updateOptionDetail(any(), any()))
@@ -170,7 +170,7 @@ class OptionDetailControllerTest {
         mockMvc.perform(put("/api/option-details/{detailId}", detailId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(validRequest)))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.error").value(ErrorCode.OPTION_DETAIL_CANNOT_BE_UPDATED.getMessage()));
 
     }
@@ -200,7 +200,7 @@ class OptionDetailControllerTest {
     }
 
     @Test
-    @DisplayName("상세 옵션 삭제 실패 - 주문된 상세 옵션 (400)")
+    @DisplayName("상세 옵션 삭제 실패 - 주문된 상세 옵션 (409)")
     void deleteOptionDetailFail_HasDetailOrders() throws Exception {
         // Given
         doThrow(new CustomException(ErrorCode.OPTION_DETAIL_CANNOT_BE_DELETED))
@@ -208,7 +208,7 @@ class OptionDetailControllerTest {
 
         // When & Then
         mockMvc.perform(delete("/api/option-details/{detailId}", detailId))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.error").value(ErrorCode.OPTION_DETAIL_CANNOT_BE_DELETED.getMessage()));
     }
 

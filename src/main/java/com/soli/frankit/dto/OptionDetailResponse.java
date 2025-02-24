@@ -1,6 +1,7 @@
 package com.soli.frankit.dto;
 
 import com.soli.frankit.entity.OptionDetail;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,13 +19,25 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 @AllArgsConstructor
+@Schema(description = "상세 옵션 응답 DTO")
 public class OptionDetailResponse {
 
+    @Schema(description = "상세 옵션 ID", example = "1")
     private Long id;
+
+    @Schema(description = "상세 옵션명", example = "사이즈 추가")
     private String detailName;
+
+    @Schema(description = "상세 옵션 추가 금액", example = "5000")
     private BigDecimal detailPrice;
+
+    @Schema(description = "옵션 활성화 여부", example = "true")
     private boolean isActive;
+
+    @Schema(description = "상세 옵션 생성일", example = "2025-02-24T12:34:56")
     private LocalDateTime createdAt;
+
+    @Schema(description = "상세 옵션 수정일", example = "2025-02-25T12:34:56")
     private LocalDateTime updatedAt;
 
     /**
