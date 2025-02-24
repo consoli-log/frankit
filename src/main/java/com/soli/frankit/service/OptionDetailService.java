@@ -3,6 +3,7 @@ package com.soli.frankit.service;
 import com.soli.frankit.dto.OptionDetailRequest;
 import com.soli.frankit.dto.OptionDetailResponse;
 import com.soli.frankit.entity.OptionDetail;
+import com.soli.frankit.entity.OptionType;
 import com.soli.frankit.entity.ProductOption;
 import com.soli.frankit.exception.CustomException;
 import com.soli.frankit.exception.ErrorCode;
@@ -44,6 +45,11 @@ public class OptionDetailService {
     public OptionDetailResponse createOptionDetail(Long optionId, OptionDetailRequest request) {
         ProductOption option = productOptionRepository.findById(optionId)
                 .orElseThrow(() -> new CustomException(ErrorCode.OPTION_NOT_FOUND));
+
+        // 입력형 옵션에는 상세 옵션을 추가할 수 없음
+        if (option.getOptionType() == OptionType.INPUT) {
+            throw new CustomException(ErrorCode.OPTION_CANNOT_HAVE_DETAILS);
+        }
 
         OptionDetail optionDetail = OptionDetail.builder()
                                                 .productOption(option)

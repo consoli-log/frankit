@@ -39,6 +39,8 @@ public enum ErrorCode {
     OPTION_CANNOT_BE_DELETED(CONFLICT, "이 옵션은 삭제할 수 없습니다."),
     OPTION_CANNOT_BE_ACTIVATED(BAD_REQUEST, "비활성화된 옵션을 활성화할 수 없습니다."), // 비활성화된 옵션이 특정 조건(예: 최대 개수 초과)으로 인해 활성화 불가능
     OPTION_LIMIT_EXCEEDED(BAD_REQUEST, "활성화된 옵션 개수는 최대 3개까지 추가할 수 있습니다."),
+    OPTION_CANNOT_HAVE_DETAILS(HttpStatus.BAD_REQUEST, "입력형 옵션에는 상세 옵션을 추가할 수 없습니다."),
+    OPTION_MUST_HAVE_DETAILS(HttpStatus.BAD_REQUEST, "선택형 옵션에는 최소 하나 이상의 상세 옵션이 필요합니다."),
 
     // 상품 상세 옵션 관련 예외
     OPTION_DETAIL_NOT_FOUND(NOT_FOUND, "상품 상세 옵션을 찾을 수 없습니다."),

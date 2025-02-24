@@ -2,10 +2,12 @@ package com.soli.frankit.service;
 
 import com.soli.frankit.dto.ProductOptionRequest;
 import com.soli.frankit.dto.ProductOptionResponse;
+import com.soli.frankit.entity.OptionType;
 import com.soli.frankit.entity.Product;
 import com.soli.frankit.entity.ProductOption;
 import com.soli.frankit.exception.CustomException;
 import com.soli.frankit.exception.ErrorCode;
+import com.soli.frankit.repository.OptionDetailRepository;
 import com.soli.frankit.repository.ProductOptionRepository;
 import com.soli.frankit.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +34,7 @@ public class ProductOptionService {
     private final ProductRepository productRepository;
     private final ProductOptionRepository productOptionRepository;
     private final OrderService orderService;
+    private final OptionDetailRepository optionDetailRepository;
 
     /**
      * 상품 옵션 등록
@@ -90,6 +93,20 @@ public class ProductOptionService {
         // 옵션 타입이 변경된 경우 기존 옵션 비활성화 후 새 옵션 추가
         if (!option.getOptionType().equals(request.getOptionType())) {
             log.info("옵션 타입 변경 - 기존: {}, 변경: {}", option.getOptionType(), request.getOptionType());
+
+            // 입력형 <-> 선택형 변경 시, 상세 옵션 여부 확인
+            if (request.getOptionType() == OptionType.SELECT) {
+                long detailCount = optionDetailRepository.countByProductOptionAndIsActiveTrue(option, true);
+                if (detailCount == 0) {
+                    throw new CustomException(ErrorCode.OPTION_MUST_HAVE_DETAILS);
+                }
+            } else if (request.getOptionType() == OptionType.INPUT) {
+                long detailCount = optionDetailRepository.countByProductOption(option);
+                if (detailCount > 0) {
+                    throw new CustomException(ErrorCode.OPTION_CANNOT_HAVE_DETAILS);
+                }
+            }
+
             option.deactivate();
 
             return createProductOption(option.getProduct().getId(), request);
